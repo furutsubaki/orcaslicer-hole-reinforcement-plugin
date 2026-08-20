@@ -32,6 +32,8 @@
 | 参照寿命 | `ctx.print`、`ctx.object`、そこから得たスライスグラフの参照とNumPy viewは、その`execute(ctx)`呼び出し中だけ有効とする |
 | 参照無効化 | `SurfaceCollection.set()`などコンテナを置換する操作の前に必要情報をコピーし、操作後に古い要素参照やviewを使わない |
 
+2D補強計画のブーリアン演算には、`ExPolygon.offset()`、`union_ex()`、`diff_ex()`、`intersection_ex()`を使用する。mm単位の純粋な値とscaled整数座標は`orca.slicing.unscale(1)`を基準に相互変換し、外周と穴の所属および向きを`ExPolygon`単位で維持する。
+
 `ctx.object`が存在するオブジェクト単位のステップだけで処理する。`ctx.print`または`ctx.object`が`None`になり得るステップへ処理を拡張する場合は、別途互換性を確認する。
 
 参照:

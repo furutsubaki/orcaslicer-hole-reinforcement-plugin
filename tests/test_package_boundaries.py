@@ -46,7 +46,7 @@ class PackageBoundaryTests(unittest.TestCase):
             confidence=1.0,
         )
         layer = LayerPlane(index=0, print_z_mm=0.2)
-        region = ReinforcementRegion(layer_index=0, contours_mm=())
+        region = ReinforcementRegion(layer_index=0, regions=())
         sink = NullDiagnosticSink()
         sink.emit(DiagnosticEvent(DiagnosticLevel.INFO, "test", "ok"))
         classifier = HoleEndClassifier()

@@ -3,7 +3,7 @@
 # 方向に依存しないソリッド補強をスライスパイプラインへ統合する
 
 Category: `enhancement`
-Status: `needs-triage`
+Status: `completed`
 
 ## 背景
 
@@ -15,14 +15,17 @@ PoCは`posPrepareInfill`で垂直穴のリング領域を`stInternalSolid`へ変
 
 ## 受け入れ条件
 
-- [ ] 対象穴の周囲だけがソリッド化される
-- [ ] 径上限を超える穴と非対象形状のスライス結果が変化しない
-- [ ] トップ、ボトム、ブリッジ、内部ボイドのSurfaceを誤って内部ソリッドに変更しない
-- [ ] 対象がない場合と無効設定の場合には形状を書き換えない
-- [ ] キャンセル要求に応答し、ホストの参照寿命制約を守る
+- [x] 対象穴の周囲だけがソリッド化される
+- [x] 径上限を超える穴と非対象形状のスライス結果が変化しない
+- [x] トップ、ボトム、ブリッジ、内部ボイドのSurfaceを誤って内部ソリッドに変更しない
+- [x] 対象がない場合と無効設定の場合には形状を書き換えない
+- [x] キャンセル要求に応答し、ホストの参照寿命制約を守る
 
 ## 依存関係
 
 - `10-slice-reinforcement-volumes`
 
 ## Comments
+
+- 2026-08-20:固定コミット`f5f3d22`の`PluginHostGeometry.cpp`と`PluginHostSlicing.cpp`を再確認し、`ExPolygon`のブーリアン演算、`Surface`のコピー可能属性、`SurfaceCollection.set()`の参照無効化契約へ合わせた。
+- 2026-08-20:`posSlice`で純粋な穴分類値を保存し、`posPrepareInfill`でレイヤー形状を計画する。`stInternal`だけを残余領域と`stInternalSolid`へ分割し、コンテナ置換前に全Surfaceをコピーする。

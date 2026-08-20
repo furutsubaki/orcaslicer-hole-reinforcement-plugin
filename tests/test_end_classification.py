@@ -181,6 +181,10 @@ class HoleEndClassifierTests(unittest.TestCase):
         self.assertEqual(len(diagnostics.events), 1)
         self.assertEqual(diagnostics.events[0].code, "hole_end_classified")
         self.assertEqual(diagnostics.events[0].details["reason"], "both_ends_open")
+        self.assertEqual(diagnostics.events[0].details["shape"], "octagon")
+        self.assertAlmostEqual(diagnostics.events[0].details["diameter_mm"], 4.0)
+        self.assertEqual(diagnostics.events[0].details["side_count"], 8)
+        self.assertEqual(diagnostics.events[0].details["axis"], result.candidate.axis)
 
     def test_honours_cancellation(self):
         wall, mesh = hole_with_ends("open", "open")

@@ -77,16 +77,36 @@ class HoleEndClassifier:
                         "hole_end_classified" if end_kind is not None else "hole_end_uncertain",
                         "穴端を分類しました" if end_kind is not None else "穴端を確定できません",
                         {
+                            **_candidate_diagnostics(candidate),
                             "start_state": start.value,
                             "end_state": end.value,
                             "end_kind": end_kind.value if end_kind is not None else None,
                             "accepted": accepted,
                             "reason": reason,
-                            "triangle_indices": candidate.triangle_indices,
                         },
                     )
                 )
         return tuple(results)
+
+
+def _candidate_diagnostics(candidate: HoleCandidate) -> dict[str, object]:
+    if hasattr(candidate, "radius_mm"):
+        shape = "circle"
+        diameter = candidate.radius_mm * 2.0
+        side_count = None
+    else:
+        shape = candidate.shape.value
+        diameter = candidate.across_flats_mm
+        side_count = candidate.side_count
+    return {
+        "shape": shape,
+        "side_count": side_count,
+        "diameter_mm": diameter,
+        "depth_mm": candidate.depth_mm,
+        "center_mm": candidate.center_mm,
+        "axis": candidate.axis,
+        "confidence": candidate.confidence,
+    }
 
 
 def _edge_owners(

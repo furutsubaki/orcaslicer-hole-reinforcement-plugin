@@ -70,23 +70,38 @@ class HoleEndClassifier:
                 reason = f"{end_kind.value}_disabled"
             result = ClassifiedHole(candidate, start, end, end_kind, accepted, reason)
             results.append(result)
-            if config.diagnostics_enabled:
-                diagnostics.emit(
-                    DiagnosticEvent(
-                        DiagnosticLevel.INFO if accepted else DiagnosticLevel.WARNING,
-                        "hole_end_classified" if end_kind is not None else "hole_end_uncertain",
-                        "穴端を分類しました" if end_kind is not None else "穴端を確定できません",
-                        {
-                            **_candidate_diagnostics(candidate),
-                            "start_state": start.value,
-                            "end_state": end.value,
-                            "end_kind": end_kind.value if end_kind is not None else None,
-                            "accepted": accepted,
-                            "reason": reason,
-                        },
-                    )
-                )
+            emit_classification_diagnostic(result, config, diagnostics)
         return tuple(results)
+
+
+def emit_classification_diagnostic(
+    result: ClassifiedHole,
+    config: HoleReinforcementConfig,
+    diagnostics: DiagnosticSink,
+) -> None:
+    if not config.diagnostics_enabled:
+        return
+    diagnostics.emit(
+        DiagnosticEvent(
+            DiagnosticLevel.INFO if result.accepted else DiagnosticLevel.WARNING,
+            "hole_end_classified"
+            if result.end_kind is not None
+            else "hole_end_uncertain",
+            "穴端を分類しました"
+            if result.end_kind is not None
+            else "穴端を確定できません",
+            {
+                **_candidate_diagnostics(result.candidate),
+                "start_state": result.start_state.value,
+                "end_state": result.end_state.value,
+                "end_kind": result.end_kind.value
+                if result.end_kind is not None
+                else None,
+                "accepted": result.accepted,
+                "reason": result.reason,
+            },
+        )
+    )
 
 
 def _candidate_diagnostics(candidate: HoleCandidate) -> dict[str, object]:

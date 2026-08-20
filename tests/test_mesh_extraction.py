@@ -130,6 +130,34 @@ class MeshExtractionTests(unittest.TestCase):
         )
         self.assertEqual(tuple(snapshot.volume_index for snapshot in snapshots), (0, 1))
 
+    def test_skips_unrequested_role_before_copying_mesh(self):
+        class UnreadableMesh(FakeMesh):
+            def vertices(self):
+                raise AssertionError("excluded mesh must not be copied")
+
+        source = FakePrintObject(
+            1,
+            FakeModelObject(
+                2,
+                [
+                    FakeVolume(10, "model"),
+                    FakeVolume(11, "negative", mesh=UnreadableMesh()),
+                ],
+            ),
+        )
+
+        excluded = []
+        snapshots = extract_transformed_volumes(
+            source,
+            include_roles=frozenset((VolumeRole.MODEL_PART,)),
+            on_excluded=lambda volume_id, volume_index, role: excluded.append(
+                (volume_id, volume_index, role)
+            ),
+        )
+
+        self.assertEqual(tuple(item.volume_id for item in snapshots), (10,))
+        self.assertEqual(excluded, [(11, 1, VolumeRole.NEGATIVE)])
+
     def test_mirror_reverses_triangle_winding(self):
         mirror = (
             (-1.0, 0.0, 0.0, 0.0),

@@ -4,11 +4,11 @@ from pathlib import Path
 
 import orca
 
-from .candidate_detection import HoleCandidateDetector
+from .analysis import AnalysisCancelled, HoleAnalysisCache
 from .config import default_config_dict, parse_json_config
 from .config_ui import render_config_ui
 from .cylinder_detection import CylinderDetectionCancelled
-from .end_classification import HoleEndClassificationCancelled, HoleEndClassifier
+from .end_classification import HoleEndClassificationCancelled
 from .diagnostics import (
     ContextDiagnosticSink,
     DiagnosticEvent,
@@ -38,6 +38,7 @@ class HoleReinforcementCapability(orca.slicing.SlicingPipelineCapabilityBase):
     def __init__(self):
         self._classified_by_object = {}
         self._diagnostic_sink_override = None
+        self._analysis_cache = HoleAnalysisCache()
 
     def get_name(self):
         return "Hole Reinforcement"
@@ -85,6 +86,7 @@ class HoleReinforcementCapability(orca.slicing.SlicingPipelineCapabilityBase):
             HoleEndClassificationCancelled,
             ReinforcementPlanningCancelled,
             SolidReinforcementCancelled,
+            AnalysisCancelled,
         ):
             return orca.ExecutionResult.success("Hole Reinforcement: cancelled")
 
@@ -99,9 +101,31 @@ class HoleReinforcementCapability(orca.slicing.SlicingPipelineCapabilityBase):
             },
         )
         classified = []
+        excluded_volumes = []
         volumes = extract_transformed_volumes(
-            ctx.object, cancelled=ctx.cancelled
+            ctx.object,
+            include_roles=frozenset((VolumeRole.MODEL_PART,)),
+            on_excluded=lambda volume_id, volume_index, role: excluded_volumes.append(
+                (volume_id, volume_index, role)
+            ),
+            cancelled=ctx.cancelled,
         )
+        for volume_id, volume_index, role in excluded_volumes:
+            ContextDiagnosticSink(
+                diagnostics,
+                {
+                    "volume_id": volume_id,
+                    "volume_index": volume_index,
+                    "volume_role": role.value,
+                },
+            ).emit(
+                DiagnosticEvent(
+                    DiagnosticLevel.INFO,
+                    "volume_detection_skipped",
+                    "検出対象外のボリュームを除外しました",
+                    {"reason": "unsupported_volume_role"},
+                )
+            )
         for volume in volumes:
             if ctx.cancelled():
                 return orca.ExecutionResult.success("Hole Reinforcement: cancelled")
@@ -123,12 +147,8 @@ class HoleReinforcementCapability(orca.slicing.SlicingPipelineCapabilityBase):
                     )
                 )
                 continue
-            candidates = HoleCandidateDetector().detect(
-                volume.mesh, config, cancelled=ctx.cancelled
-            )
-            classified_volume = HoleEndClassifier().classify(
+            classified_volume, measurement = self._analysis_cache.analyze(
                 volume.mesh,
-                candidates,
                 config,
                 diagnostics=volume_diagnostics,
                 cancelled=ctx.cancelled,
@@ -140,11 +160,15 @@ class HoleReinforcementCapability(orca.slicing.SlicingPipelineCapabilityBase):
                     "volume_detection_completed",
                     "ボリュームの穴検出が完了しました",
                     {
-                        "candidate_count": len(candidates),
+                        "candidate_count": len(classified_volume),
                         "accepted_count": sum(hole.accepted for hole in classified_volume),
                         "excluded_count": sum(
                             not hole.accepted for hole in classified_volume
                         ),
+                        "analysis_seconds": measurement.duration_seconds,
+                        "vertex_count": measurement.vertex_count,
+                        "triangle_count": measurement.triangle_count,
+                        "cache_hit": measurement.cache_hit,
                     },
                 )
             )

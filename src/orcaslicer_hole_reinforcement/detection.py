@@ -30,6 +30,18 @@ class MeshSnapshot:
 
 
 @dataclass(frozen=True, slots=True)
+class CylindricalHoleCandidate:
+    center_mm: Vector3
+    axis: Vector3
+    radius_mm: float
+    depth_mm: float
+    axial_start_mm: float
+    axial_end_mm: float
+    confidence: float
+    triangle_indices: tuple[int, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class DetectedHole:
     shape: HoleShape
     end_kind: HoleEndKind

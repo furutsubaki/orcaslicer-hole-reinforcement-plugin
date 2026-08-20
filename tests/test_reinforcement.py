@@ -14,13 +14,15 @@ from orcaslicer_hole_reinforcement.polygon_detection import PolygonalHoleDetecto
 from orcaslicer_hole_reinforcement.reinforcement import (
     LayerHoleContour,
     LayerPlane,
+    PlanarRegion,
     ReinforcementPlanningCancelled,
     ReinforcementVolumeSlicer,
 )
 from tests.test_polygon_detection import polygon_side
 
 
-MODEL = (((-20.0, -20.0), (20.0, -20.0), (20.0, 20.0), (-20.0, 20.0)),)
+MODEL_POLYGON = ((-20.0, -20.0), (20.0, -20.0), (20.0, 20.0), (-20.0, 20.0))
+MODEL = (PlanarRegion(MODEL_POLYGON),)
 
 
 def apothem(polygon):
@@ -105,8 +107,8 @@ class ReinforcementVolumeSlicerTests(unittest.TestCase):
         )
 
         self.assertEqual(len(result), 1)
-        outer = self.geometry.differences[0][0][0]
-        inner = self.geometry.differences[0][1][0]
+        outer = self.geometry.differences[0][0][0].contour_mm
+        inner = self.geometry.differences[0][1][0].contour_mm
         self.assertAlmostEqual(apothem(outer), 4.0, places=6)
         self.assertAlmostEqual(apothem(inner), 2.0, places=6)
         self.assertGreaterEqual(len(outer), 32)
@@ -131,8 +133,8 @@ class ReinforcementVolumeSlicerTests(unittest.TestCase):
                     self.config,
                 )
                 self.assertEqual(len(result), 1)
-                outer = geometry.differences[0][0][0]
-                inner = geometry.differences[0][1][0]
+                outer = geometry.differences[0][0][0].contour_mm
+                inner = geometry.differences[0][1][0].contour_mm
                 self.assertAlmostEqual(apothem(outer) - apothem(inner), 2.0, places=6)
 
     def test_uses_post_slice_hole_contour_for_polyhole_compatibility(self):
@@ -146,8 +148,12 @@ class ReinforcementVolumeSlicerTests(unittest.TestCase):
 
         self.slicer.plan((classified_circle(),), (layer,), self.config)
 
-        self.assertEqual(self.geometry.differences[0][1], (actual_contour,))
-        self.assertEqual(self.geometry.offsets, [((actual_contour,), 2.0)])
+        self.assertEqual(
+            self.geometry.differences[0][1], (PlanarRegion(actual_contour),)
+        )
+        self.assertEqual(
+            self.geometry.offsets, [((PlanarRegion(actual_contour),), 2.0)]
+        )
 
     def test_clips_each_layer_to_model_contours(self):
         self.slicer.plan(

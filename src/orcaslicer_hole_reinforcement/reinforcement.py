@@ -11,8 +11,16 @@ from .end_classification import ClassifiedHole
 
 Point2: TypeAlias = tuple[float, float]
 Polygon2: TypeAlias = tuple[Point2, ...]
-PolygonSet: TypeAlias = tuple[Polygon2, ...]
 _EPSILON = 1e-8
+
+
+@dataclass(frozen=True, slots=True)
+class PlanarRegion:
+    contour_mm: Polygon2
+    holes_mm: tuple[Polygon2, ...] = ()
+
+
+RegionSet: TypeAlias = tuple[PlanarRegion, ...]
 
 
 @dataclass(frozen=True, slots=True)
@@ -25,21 +33,21 @@ class LayerHoleContour:
 class LayerPlane:
     index: int
     print_z_mm: float
-    model_contours_mm: PolygonSet = ()
+    model_regions: RegionSet = ()
     hole_contours: tuple[LayerHoleContour, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
 class ReinforcementRegion:
     layer_index: int
-    contours_mm: PolygonSet
+    regions: RegionSet
 
 
 class PlanarGeometry(Protocol):
-    def difference(self, subject: PolygonSet, clips: PolygonSet) -> PolygonSet: ...
-    def intersection(self, subject: PolygonSet, clips: PolygonSet) -> PolygonSet: ...
-    def offset(self, polygons: PolygonSet, distance_mm: float) -> PolygonSet: ...
-    def union(self, polygons: PolygonSet) -> PolygonSet: ...
+    def difference(self, subject: RegionSet, clips: RegionSet) -> RegionSet: ...
+    def intersection(self, subject: RegionSet, clips: RegionSet) -> RegionSet: ...
+    def offset(self, regions: RegionSet, distance_mm: float) -> RegionSet: ...
+    def union(self, regions: RegionSet) -> RegionSet: ...
 
 
 class ReinforcementPlanningCancelled(Exception):
@@ -73,7 +81,7 @@ class ReinforcementVolumeSlicer:
         for layer_offset, layer in enumerate(layers):
             if layer_offset % 256 == 0 and cancelled():
                 raise ReinforcementPlanningCancelled
-            if not layer.model_contours_mm:
+            if not layer.model_regions:
                 continue
             overrides = {
                 contour.hole_index: contour.contour_mm for contour in layer.hole_contours
@@ -105,12 +113,14 @@ class ReinforcementVolumeSlicer:
                 override = overrides.get(hole_index)
                 if override is not None and _valid_polygon(override):
                     expanded_override = self._geometry.offset(
-                        (override,), config.reinforcement_width_mm
+                        (PlanarRegion(override),), config.reinforcement_width_mm
                     )
-                    subject = self._geometry.union((outer, *expanded_override))
+                    subject = self._geometry.union(
+                        (PlanarRegion(outer), *expanded_override)
+                    )
                     inner = override
                 else:
-                    subject = (outer,)
+                    subject = (PlanarRegion(outer),)
                     inner = _slice_prism(
                         inner_profile,
                         axis,
@@ -118,12 +128,12 @@ class ReinforcementVolumeSlicer:
                         axial_end,
                         layer.print_z_mm,
                     )
-                clips = (inner,) if inner is not None else ()
+                clips = (PlanarRegion(inner),) if inner is not None else ()
                 layer_regions.extend(self._geometry.difference(subject, clips))
             if not layer_regions:
                 continue
             combined = self._geometry.union(tuple(layer_regions))
-            clipped = self._geometry.intersection(combined, layer.model_contours_mm)
+            clipped = self._geometry.intersection(combined, layer.model_regions)
             if clipped:
                 regions.append(ReinforcementRegion(layer.index, clipped))
         return tuple(regions)

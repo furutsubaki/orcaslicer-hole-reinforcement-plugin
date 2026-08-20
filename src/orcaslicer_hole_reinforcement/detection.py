@@ -1,0 +1,48 @@
+"""OrcaSlicerに依存しない3D穴検出I/F。"""
+
+from collections.abc import Sequence
+from dataclasses import dataclass
+from enum import Enum
+from typing import Protocol, TypeAlias
+
+from .config import HoleReinforcementConfig
+
+
+Vector3: TypeAlias = tuple[float, float, float]
+Triangle: TypeAlias = tuple[int, int, int]
+
+
+class HoleShape(Enum):
+    CIRCLE = "circle"
+    HEXAGON = "hexagon"
+    OCTAGON = "octagon"
+
+
+class HoleEndKind(Enum):
+    THROUGH = "through"
+    BLIND = "blind"
+
+
+@dataclass(frozen=True, slots=True)
+class MeshSnapshot:
+    vertices_mm: tuple[Vector3, ...]
+    triangles: tuple[Triangle, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class DetectedHole:
+    shape: HoleShape
+    end_kind: HoleEndKind
+    center_mm: Vector3
+    axis: Vector3
+    diameter_mm: float
+    depth_mm: float
+    confidence: float
+
+
+class HoleDetector(Protocol):
+    def detect(
+        self,
+        mesh: MeshSnapshot,
+        config: HoleReinforcementConfig,
+    ) -> Sequence[DetectedHole]: ...

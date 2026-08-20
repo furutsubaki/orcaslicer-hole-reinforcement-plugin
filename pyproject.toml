@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling==1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "orcaslicer-hole-reinforcement"
+dynamic = ["version"]
+description = "OrcaSlicer plugin for reinforcing material around holes"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+authors = [
+  { name = "furutsubaki" },
+]
+dependencies = []
+
+[tool.hatch.version]
+path = "src/orcaslicer_hole_reinforcement/version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/orcaslicer_hole_reinforcement"]
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+  "/.scratch",
+  "/test-models",
+  "/hole_reinforcement_detector_poc.py",
+]

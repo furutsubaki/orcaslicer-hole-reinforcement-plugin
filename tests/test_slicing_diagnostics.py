@@ -74,14 +74,19 @@ class SlicingDiagnosticsTests(unittest.TestCase):
             ),
         )
         classified = (types.SimpleNamespace(accepted=True),)
-        candidate_detector = types.SimpleNamespace(detect=lambda *args, **kwargs: (object(),))
-        classifier = types.SimpleNamespace(classify=lambda *args, **kwargs: classified)
+        measurement = types.SimpleNamespace(
+            duration_seconds=0.01,
+            peak_memory_bytes=1024,
+            vertex_count=10,
+            triangle_count=20,
+            cache_hit=False,
+        )
+        analyzer = types.SimpleNamespace(
+            analyze=lambda *args, **kwargs: (classified, measurement)
+        )
+        capability._analysis_cache = analyzer
 
-        with (
-            patch.object(module, "extract_transformed_volumes", return_value=volumes),
-            patch.object(module, "HoleCandidateDetector", return_value=candidate_detector),
-            patch.object(module, "HoleEndClassifier", return_value=classifier),
-        ):
+        with patch.object(module, "extract_transformed_volumes", return_value=volumes):
             result = capability._detect(ctx, HoleReinforcementConfig())
 
         self.assertEqual(result[0], "success")
@@ -94,6 +99,9 @@ class SlicingDiagnosticsTests(unittest.TestCase):
         )
         self.assertEqual(
             by_code["object_detection_completed"].details["model_object_id"], 20
+        )
+        self.assertEqual(
+            by_code["volume_detection_completed"].details["analysis_seconds"], 0.01
         )
 
     def test_disabled_diagnostics_does_not_use_override(self):

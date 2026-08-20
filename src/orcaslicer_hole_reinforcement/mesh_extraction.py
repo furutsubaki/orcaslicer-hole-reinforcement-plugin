@@ -78,6 +78,8 @@ class PrintObjectSnapshotSource(Protocol):
 def extract_transformed_volumes(
     print_object: PrintObjectSnapshotSource,
     *,
+    include_roles: frozenset[VolumeRole] | None = None,
+    on_excluded: Callable[[int, int, VolumeRole], None] = lambda _id, _index, _role: None,
     cancelled: Callable[[], bool] = lambda: False,
 ) -> tuple[TransformedVolumeSnapshot, ...]:
     """対象PrintObjectの造形座標メッシュをホスト非依存の値へコピーする。"""
@@ -94,6 +96,9 @@ def extract_transformed_volumes(
         volume = model_object.volume(volume_index)
         role = _volume_role(volume)
         if role is None:
+            continue
+        if include_roles is not None and role not in include_roles:
+            on_excluded(int(volume.id()), volume_index, role)
             continue
 
         transform = _multiply_matrix(

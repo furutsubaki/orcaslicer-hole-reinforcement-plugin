@@ -33,6 +33,8 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v
 
 解析時間・メモリ・キャッシュ効果の計測方法は[`docs/performance.md`](docs/performance.md)を参照してください。
 
+方向・形状・穴端・境界・誤検出用のSTLフィクスチャは[`docs/test-fixtures.md`](docs/test-fixtures.md)を参照してください。
+
 ## PoC
 
 OrcaSlicer Nightly版`f5f3d22`向けに、垂直円穴の検出条件を検証する試作です。現段階ではスライス形状を変更しません。

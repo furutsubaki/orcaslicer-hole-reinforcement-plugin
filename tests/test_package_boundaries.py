@@ -106,7 +106,7 @@ class PackageBoundaryTests(unittest.TestCase):
             self.assertEqual(orcaslicer_hole_reinforcement.__version__, "0.0.1")
 
             capability = registered[0]()
-            self.assertEqual(capability.get_default_config()["schema_version"], 1)
+            self.assertEqual(capability.get_default_config()["schema_version"], 2)
             self.assertTrue(capability.has_config_ui())
             self.assertIn('id="config-form"', capability.get_config_ui())
             self.assertIn("穴補強設定", capability.get_config_ui())

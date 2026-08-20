@@ -29,7 +29,7 @@ _TRANSLATIONS = {
             "title": "Hole reinforcement settings",
             "intro": "Configure which holes to detect and how their surroundings are solidified.",
             "format_label": "Configuration format:",
-            "format_help": "v1 (managed automatically by the plugin for compatibility checks)",
+            "format_help": "v2 (managed automatically by the plugin for compatibility checks)",
             "dimensions": "Target dimensions",
             "min_diameter": "Minimum hole diameter",
             "min_diameter_help": "Holes smaller than this are ignored. Must not exceed the maximum diameter.",
@@ -44,6 +44,11 @@ _TRANSLATIONS = {
             "circle": "Circle",
             "hexagon": "Hexagon",
             "octagon": "Octagon",
+            "regular_polygon": "Regular polygon",
+            "min_polygon_sides": "Minimum polygon sides",
+            "min_polygon_sides_help": "Smallest regular polygon detected by the generic polygon option.",
+            "max_polygon_sides": "Maximum polygon sides",
+            "max_polygon_sides_help": "Largest regular polygon detected by the generic polygon option.",
             "choose_one": "Select at least one option.",
             "hole_end": "Hole end",
             "through": "Through hole",
@@ -69,6 +74,7 @@ _TRANSLATIONS = {
             "auto_save": "Valid changes are saved automatically.",
             "range": "{label} must be between {min} and {max}.",
             "diameter_relation": "Minimum hole diameter must not exceed maximum hole diameter.",
+            "polygon_sides_relation": "Minimum polygon sides must not exceed maximum polygon sides.",
             "shape_required": "Select at least one hole shape.",
             "end_required": "Select at least one hole end.",
             "saving": "Saving automatically…",
@@ -82,7 +88,7 @@ _TRANSLATIONS = {
             "title": "穴補強設定",
             "intro": "対象にする穴と、穴周辺をソリッド化する条件を設定します。",
             "format_label": "設定形式:",
-            "format_help": "v1（互換性判定のためプラグインが自動管理します）",
+            "format_help": "v2（互換性判定のためプラグインが自動管理します）",
             "dimensions": "対象寸法",
             "min_diameter": "最小穴径",
             "min_diameter_help": "これより小さい穴は補強しません。最大穴径以下にしてください。",
@@ -97,6 +103,11 @@ _TRANSLATIONS = {
             "circle": "円",
             "hexagon": "六角形",
             "octagon": "八角形",
+            "regular_polygon": "正多角形",
+            "min_polygon_sides": "正多角形の最小辺数",
+            "min_polygon_sides_help": "正多角形として検出する最小の辺数です。",
+            "max_polygon_sides": "正多角形の最大辺数",
+            "max_polygon_sides_help": "正多角形として検出する最大の辺数です。",
             "choose_one": "1つ以上選択してください。",
             "hole_end": "穴の終端",
             "through": "貫通穴",
@@ -122,6 +133,7 @@ _TRANSLATIONS = {
             "auto_save": "有効な変更は自動的に保存されます。",
             "range": "{label}を{min}〜{max}の範囲で入力してください。",
             "diameter_relation": "最小穴径は最大穴径以下にしてください。",
+            "polygon_sides_relation": "正多角形の最小辺数は最大辺数以下にしてください。",
             "shape_required": "穴形状を1つ以上選択してください。",
             "end_required": "穴の終端を1つ以上選択してください。",
             "saving": "自動保存しています…",
@@ -223,8 +235,10 @@ _HTML = r"""
   </fieldset>
 
   <fieldset><legend>__SHAPES__</legend><div class="grid">
-    <div class="field"><span id="shapes-label" class="group-label">__HOLE_SHAPE__</span><div class="choices" role="group" aria-labelledby="shapes-label" aria-describedby="shapes-help"><label class="choice"><input type="checkbox" name="enabled_shapes" value="circle">__CIRCLE__</label><label class="choice"><input type="checkbox" name="enabled_shapes" value="hexagon">__HEXAGON__</label><label class="choice"><input type="checkbox" name="enabled_shapes" value="octagon">__OCTAGON__</label></div><p id="shapes-help" class="help">__CHOOSE_ONE__</p></div>
+    <div class="field"><span id="shapes-label" class="group-label">__HOLE_SHAPE__</span><div class="choices" role="group" aria-labelledby="shapes-label" aria-describedby="shapes-help"><label class="choice"><input type="checkbox" name="enabled_shapes" value="circle">__CIRCLE__</label><label class="choice"><input type="checkbox" name="enabled_shapes" value="hexagon">__HEXAGON__</label><label class="choice"><input type="checkbox" name="enabled_shapes" value="octagon">__OCTAGON__</label><label class="choice"><input type="checkbox" name="enabled_shapes" value="regular_polygon">__REGULAR_POLYGON__</label></div><p id="shapes-help" class="help">__CHOOSE_ONE__</p></div>
     <div class="field"><span id="ends-label" class="group-label">__HOLE_END__</span><div class="choices" role="group" aria-labelledby="ends-label" aria-describedby="ends-help"><label class="choice"><input type="checkbox" name="enabled_end_kinds" value="through">__THROUGH__</label><label class="choice"><input type="checkbox" name="enabled_end_kinds" value="blind">__BLIND__</label></div><p id="ends-help" class="help">__CHOOSE_ONE__</p></div>
+    <div class="field"><label for="min_polygon_sides">__MIN_POLYGON_SIDES__</label><input id="min_polygon_sides" type="number" min="3" max="64" step="1" required aria-describedby="min_polygon_sides_help"><p id="min_polygon_sides_help" class="help">__MIN_POLYGON_SIDES_HELP__</p></div>
+    <div class="field"><label for="max_polygon_sides">__MAX_POLYGON_SIDES__</label><input id="max_polygon_sides" type="number" min="3" max="64" step="1" required aria-describedby="max_polygon_sides_help"><p id="max_polygon_sides_help" class="help">__MAX_POLYGON_SIDES_HELP__</p></div>
   </div></fieldset>
 
   <fieldset><legend>__TOLERANCES__</legend><div class="grid">
@@ -248,7 +262,7 @@ _HTML = r"""
   document.documentElement.lang = "__LANG__";
   var defaults = __DEFAULT_CONFIG__;
   var texts = __VALIDATION_TEXTS__;
-  var numericKeys = ["min_hole_diameter_mm", "max_hole_diameter_mm", "reinforcement_width_mm", "min_hole_depth_mm", "circle_radial_tolerance_mm", "polygon_edge_length_tolerance_percent", "polygon_angle_tolerance_deg", "axis_tolerance_deg"];
+  var numericKeys = ["min_hole_diameter_mm", "max_hole_diameter_mm", "reinforcement_width_mm", "min_hole_depth_mm", "min_polygon_sides", "max_polygon_sides", "circle_radial_tolerance_mm", "polygon_edge_length_tolerance_percent", "polygon_angle_tolerance_deg", "axis_tolerance_deg"];
   var booleanKeys = ["solid_reinforcement", "diagnostics_enabled"];
   var form = document.getElementById("config-form");
   var errors = document.getElementById("errors");
@@ -342,6 +356,7 @@ _HTML = r"""
     });
     var config = readConfig();
     if (Number.isFinite(config.min_hole_diameter_mm) && Number.isFinite(config.max_hole_diameter_mm) && config.min_hole_diameter_mm > config.max_hole_diameter_mm) messages.push(texts.diameter_relation);
+    if (Number.isFinite(config.min_polygon_sides) && Number.isFinite(config.max_polygon_sides) && config.min_polygon_sides > config.max_polygon_sides) messages.push(texts.polygon_sides_relation);
     if (config.enabled_shapes.length === 0) messages.push(texts.shape_required);
     if (config.enabled_end_kinds.length === 0) messages.push(texts.end_required);
     errors.replaceChildren();

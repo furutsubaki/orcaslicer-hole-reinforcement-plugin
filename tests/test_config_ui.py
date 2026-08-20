@@ -11,7 +11,7 @@ class ConfigUiTests(unittest.TestCase):
 
         for key, value in default_config_dict().items():
             if key == "schema_version":
-                self.assertIn("Configuration format:</strong> v1", html)
+                self.assertIn("Configuration format:</strong> v2", html)
             elif isinstance(value, list):
                 self.assertIn(f'name="{key}"', html)
             else:
@@ -35,6 +35,8 @@ class ConfigUiTests(unittest.TestCase):
             "max_hole_diameter_mm",
             "reinforcement_width_mm",
             "min_hole_depth_mm",
+            "min_polygon_sides",
+            "max_polygon_sides",
             "circle_radial_tolerance_mm",
             "polygon_edge_length_tolerance_percent",
             "polygon_angle_tolerance_deg",

@@ -14,7 +14,9 @@
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-circle-blind-0",
@@ -31,7 +33,9 @@
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-hexagon-through-0",
@@ -48,7 +52,9 @@
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-hexagon-blind-0",
@@ -65,7 +71,9 @@
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-octagon-through-0",
@@ -82,7 +90,9 @@
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-octagon-blind-0",
@@ -99,7 +109,9 @@
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-circle-through-30",
@@ -111,12 +123,14 @@
       0.49999999999999994
     ],
     "diameter_mm": 4.0,
-    "depth_mm": 12.0,
+    "depth_mm": 18.92820323,
     "end_kind": "through",
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-circle-blind-30",
@@ -128,12 +142,14 @@
       0.49999999999999994
     ],
     "diameter_mm": 4.0,
-    "depth_mm": 12.0,
+    "depth_mm": 15.464101615,
     "end_kind": "blind",
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-hexagon-through-30",
@@ -145,12 +161,14 @@
       0.49999999999999994
     ],
     "diameter_mm": 4.0,
-    "depth_mm": 12.0,
+    "depth_mm": 18.92820323,
     "end_kind": "through",
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-hexagon-blind-30",
@@ -162,12 +180,14 @@
       0.49999999999999994
     ],
     "diameter_mm": 4.0,
-    "depth_mm": 12.0,
+    "depth_mm": 15.464101615,
     "end_kind": "blind",
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-octagon-through-30",
@@ -179,12 +199,14 @@
       0.49999999999999994
     ],
     "diameter_mm": 4.0,
-    "depth_mm": 12.0,
+    "depth_mm": 19.499033138,
     "end_kind": "through",
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-octagon-blind-30",
@@ -196,12 +218,14 @@
       0.49999999999999994
     ],
     "diameter_mm": 4.0,
-    "depth_mm": 12.0,
+    "depth_mm": 15.749516569,
     "end_kind": "blind",
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-circle-through-45",
@@ -213,12 +237,14 @@
       0.7071067811865475
     ],
     "diameter_mm": 4.0,
-    "depth_mm": 12.0,
+    "depth_mm": 16.0,
     "end_kind": "through",
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-circle-blind-45",
@@ -230,12 +256,14 @@
       0.7071067811865475
     ],
     "diameter_mm": 4.0,
-    "depth_mm": 12.0,
+    "depth_mm": 14.0,
     "end_kind": "blind",
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-hexagon-through-45",
@@ -247,12 +275,14 @@
       0.7071067811865475
     ],
     "diameter_mm": 4.0,
-    "depth_mm": 12.0,
+    "depth_mm": 16.0,
     "end_kind": "through",
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-hexagon-blind-45",
@@ -264,12 +294,14 @@
       0.7071067811865475
     ],
     "diameter_mm": 4.0,
-    "depth_mm": 12.0,
+    "depth_mm": 14.0,
     "end_kind": "blind",
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-octagon-through-45",
@@ -281,12 +313,14 @@
       0.7071067811865475
     ],
     "diameter_mm": 4.0,
-    "depth_mm": 12.0,
+    "depth_mm": 16.329568801,
     "end_kind": "through",
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-octagon-blind-45",
@@ -298,12 +332,14 @@
       0.7071067811865475
     ],
     "diameter_mm": 4.0,
-    "depth_mm": 12.0,
+    "depth_mm": 14.164784401,
     "end_kind": "blind",
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-circle-through-60",
@@ -315,12 +351,14 @@
       0.8660254037844386
     ],
     "diameter_mm": 4.0,
-    "depth_mm": 12.0,
+    "depth_mm": 14.309401077,
     "end_kind": "through",
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-circle-blind-60",
@@ -332,12 +370,14 @@
       0.8660254037844386
     ],
     "diameter_mm": 4.0,
-    "depth_mm": 12.0,
+    "depth_mm": 13.154700538,
     "end_kind": "blind",
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-hexagon-through-60",
@@ -349,12 +389,14 @@
       0.8660254037844386
     ],
     "diameter_mm": 4.0,
-    "depth_mm": 12.0,
+    "depth_mm": 14.309401077,
     "end_kind": "through",
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-hexagon-blind-60",
@@ -366,12 +408,14 @@
       0.8660254037844386
     ],
     "diameter_mm": 4.0,
-    "depth_mm": 12.0,
+    "depth_mm": 13.154700538,
     "end_kind": "blind",
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-octagon-through-60",
@@ -383,12 +427,14 @@
       0.8660254037844386
     ],
     "diameter_mm": 4.0,
-    "depth_mm": 12.0,
+    "depth_mm": 14.499677713,
     "end_kind": "through",
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-octagon-blind-60",
@@ -400,12 +446,14 @@
       0.8660254037844386
     ],
     "diameter_mm": 4.0,
-    "depth_mm": 12.0,
+    "depth_mm": 13.249838856,
     "end_kind": "blind",
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-circle-through-90",
@@ -422,7 +470,9 @@
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-circle-blind-90",
@@ -439,7 +489,9 @@
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-hexagon-through-90",
@@ -456,7 +508,9 @@
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-hexagon-blind-90",
@@ -473,7 +527,9 @@
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-octagon-through-90",
@@ -490,7 +546,9 @@
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "matrix-octagon-blind-90",
@@ -507,7 +565,9 @@
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "direction-circle-through-0.1",
@@ -524,7 +584,9 @@
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "direction-circle-through-89.9",
@@ -541,7 +603,9 @@
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "diameter-below-min",
@@ -558,7 +622,9 @@
     "expected": "not_detected",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "diameter-at-min",
@@ -575,7 +641,9 @@
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "diameter-at-max",
@@ -592,7 +660,9 @@
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "diameter-above-max",
@@ -609,7 +679,9 @@
     "expected": "not_detected",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "depth-below-min",
@@ -626,7 +698,9 @@
     "expected": "not_detected",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "depth-at-min",
@@ -643,7 +717,9 @@
     "expected": "accepted",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "circle-tolerance-inside",
@@ -662,7 +738,9 @@
     "config": {
       "circle_radial_tolerance_mm": 0.060609665440987774
     },
-    "dimension_tolerance_mm": 0.2
+    "dimension_tolerance_mm": 0.2,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "circle-tolerance-at",
@@ -681,7 +759,9 @@
     "config": {
       "circle_radial_tolerance_mm": 0.05060966544098777
     },
-    "dimension_tolerance_mm": 0.2
+    "dimension_tolerance_mm": 0.2,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "circle-tolerance-outside",
@@ -700,7 +780,9 @@
     "config": {
       "circle_radial_tolerance_mm": 0.04060966544098777
     },
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "polygon-edge-tolerance-inside",
@@ -720,7 +802,9 @@
       "polygon_edge_length_tolerance_percent": 1.8128196293633159,
       "polygon_angle_tolerance_deg": 15.0
     },
-    "dimension_tolerance_mm": 0.2
+    "dimension_tolerance_mm": 0.2,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "polygon-edge-tolerance-at",
@@ -740,7 +824,9 @@
       "polygon_edge_length_tolerance_percent": 1.7128196293633158,
       "polygon_angle_tolerance_deg": 15.0
     },
-    "dimension_tolerance_mm": 0.2
+    "dimension_tolerance_mm": 0.2,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "polygon-edge-tolerance-outside",
@@ -760,7 +846,9 @@
       "polygon_edge_length_tolerance_percent": 1.6128196293633157,
       "polygon_angle_tolerance_deg": 15.0
     },
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "polygon-angle-tolerance-inside",
@@ -780,7 +868,9 @@
       "polygon_edge_length_tolerance_percent": 25.0,
       "polygon_angle_tolerance_deg": 2.0649400883560642
     },
-    "dimension_tolerance_mm": 0.2
+    "dimension_tolerance_mm": 0.2,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "polygon-angle-tolerance-at",
@@ -800,7 +890,9 @@
       "polygon_edge_length_tolerance_percent": 25.0,
       "polygon_angle_tolerance_deg": 1.9649400883560642
     },
-    "dimension_tolerance_mm": 0.2
+    "dimension_tolerance_mm": 0.2,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "polygon-angle-tolerance-outside",
@@ -820,7 +912,9 @@
       "polygon_edge_length_tolerance_percent": 25.0,
       "polygon_angle_tolerance_deg": 1.8649400883560643
     },
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "negative-outer-cylinder",
@@ -837,7 +931,9 @@
     "expected": "not_detected",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "negative-open-groove",
@@ -854,7 +950,9 @@
     "expected": "not_detected",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": false,
+    "topology": "intentionally_non_manifold"
   },
   {
     "id": "negative-ellipse",
@@ -871,7 +969,9 @@
     "expected": "not_detected",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "negative-irregular-hexagon",
@@ -888,7 +988,9 @@
     "expected": "not_detected",
     "reason": null,
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "negative-internal-cavity",
@@ -905,7 +1007,9 @@
     "expected": "rejected",
     "reason": "both_ends_closed",
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": true,
+    "topology": "closed_two_manifold"
   },
   {
     "id": "negative-broken-mesh",
@@ -922,6 +1026,8 @@
     "expected": "rejected",
     "reason": "incomplete_or_non_manifold_rim",
     "config": {},
-    "dimension_tolerance_mm": 1e-06
+    "dimension_tolerance_mm": 1e-06,
+    "printable": false,
+    "topology": "intentionally_non_manifold"
   }
 ]

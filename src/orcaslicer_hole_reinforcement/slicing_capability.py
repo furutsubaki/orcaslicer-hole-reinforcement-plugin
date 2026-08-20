@@ -36,6 +36,7 @@ from .version import __version__
 
 class HoleReinforcementCapability(orca.slicing.SlicingPipelineCapabilityBase):
     def __init__(self):
+        super().__init__()
         self._classified_by_object = {}
         self._diagnostic_sink_override = None
         self._analysis_cache = HoleAnalysisCache()
@@ -94,11 +95,7 @@ class HoleReinforcementCapability(orca.slicing.SlicingPipelineCapabilityBase):
         object_id = int(ctx.object.id())
         self._classified_by_object.pop(object_id, None)
         diagnostics = ContextDiagnosticSink(
-            self._diagnostics(config),
-            {
-                "print_object_id": object_id,
-                "model_object_id": int(ctx.object.model_object().id()),
-            },
+            self._diagnostics(config), _object_context(ctx)
         )
         classified = []
         excluded_volumes = []
@@ -217,20 +214,24 @@ class HoleReinforcementCapability(orca.slicing.SlicingPipelineCapabilityBase):
             geometry,
             cancelled=ctx.cancelled,
         )
-        self._diagnostics(config).emit(
+        details = {
+            "reinforced_layer_count": len(planned),
+            "target_region_count": sum(len(region.regions) for region in planned),
+            "solid_surface_count": result.solid_surfaces,
+            "changed_collection_count": result.changed_collections,
+        }
+        # 明細はレイヤ数に比例するため、診断を切っているときは組み立てない。
+        if config.diagnostics_enabled:
+            details["reinforced_layers"] = _reinforced_layer_details(planned, layers)
+        diagnostics = ContextDiagnosticSink(
+            self._diagnostics(config), _object_context(ctx)
+        )
+        diagnostics.emit(
             DiagnosticEvent(
                 DiagnosticLevel.INFO,
                 "reinforcement_completed",
                 "ソリッド補強が完了しました",
-                {
-                    "print_object_id": int(ctx.object.id()),
-                    "reinforced_layer_count": len(planned),
-                    "target_region_count": sum(
-                        len(region.regions) for region in planned
-                    ),
-                    "solid_surface_count": result.solid_surfaces,
-                    "changed_collection_count": result.changed_collections,
-                },
+                details,
             )
         )
         return orca.ExecutionResult.success(
@@ -246,6 +247,93 @@ class HoleReinforcementCapability(orca.slicing.SlicingPipelineCapabilityBase):
             return SafeDiagnosticSink(self._diagnostic_sink_override)
         path = Path(__file__).resolve().with_name("diagnostic.jsonl")
         return SafeDiagnosticSink(JsonLinesDiagnosticSink(path))
+
+
+def _object_context(ctx):
+    model_object = ctx.object.model_object()
+    context = {
+        "print_object_id": int(ctx.object.id()),
+        "model_object_id": int(model_object.id()),
+    }
+    name = _model_object_name(model_object)
+    if name is not None:
+        context["model_object_name"] = name
+    else:
+        # 名前を辿れないホストでは、取得先を特定できるよう手掛かりを残す。
+        context["model_object_attributes"] = _public_attributes(model_object)
+    # model_object_idは実行時IDで3mfのidとは別体系のため、配置を対応付けの拠り所にする。
+    origin = _object_origin(ctx.object)
+    if origin is not None:
+        context["object_origin_mm"] = origin
+    return context
+
+
+def _model_object_name(model_object):
+    """ホストが名前をメソッドで返すか属性で持つかは環境差があるため両方試す。"""
+    for attribute in ("name", "get_name", "object_name"):
+        value = getattr(model_object, attribute, None)
+        if value is None:
+            continue
+        if callable(value):
+            try:
+                value = value()
+            except Exception:
+                continue
+        if isinstance(value, str) and value:
+            return value
+    return None
+
+
+def _public_attributes(value):
+    try:
+        names = sorted(name for name in dir(value) if not name.startswith("_"))
+    except Exception:
+        return ()
+    return tuple(names[:40])
+
+
+def _object_origin(print_object):
+    try:
+        matrix = print_object.trafo()
+        return tuple(round(float(matrix[row][3]), 6) for row in range(3))
+    except Exception:
+        return None
+
+
+def _reinforced_layer_details(planned, layers):
+    planes = {plane.index: plane for plane in layers}
+    details = []
+    for region in planned:
+        detail = {
+            "layer_index": region.layer_index,
+            "region_count": len(region.regions),
+        }
+        plane = planes.get(region.layer_index)
+        if plane is not None:
+            detail["print_z_mm"] = plane.print_z_mm
+        bbox = _regions_bbox(region.regions)
+        if bbox is not None:
+            detail["bbox_mm"] = bbox
+        details.append(detail)
+    return tuple(details)
+
+
+def _regions_bbox(regions):
+    bounds = None
+    for region in regions:
+        for x, y in region.contour_mm:
+            if bounds is None:
+                bounds = [x, y, x, y]
+                continue
+            if x < bounds[0]:
+                bounds[0] = x
+            if y < bounds[1]:
+                bounds[1] = y
+            if x > bounds[2]:
+                bounds[2] = x
+            if y > bounds[3]:
+                bounds[3] = y
+    return tuple(bounds) if bounds is not None else None
 
 
 def _copy_layer_plane(index, layer, holes, geometry, cancelled=lambda: False):

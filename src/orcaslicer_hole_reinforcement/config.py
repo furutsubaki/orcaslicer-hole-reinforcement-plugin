@@ -7,8 +7,8 @@ import math
 from typing import TypeAlias
 
 
-CURRENT_SCHEMA_VERSION = 1
-SUPPORTED_SHAPES = ("circle", "hexagon", "octagon")
+CURRENT_SCHEMA_VERSION = 2
+SUPPORTED_SHAPES = ("circle", "hexagon", "octagon", "regular_polygon")
 SUPPORTED_END_KINDS = ("through", "blind")
 
 
@@ -24,6 +24,8 @@ class HoleReinforcementConfig:
     circle_radial_tolerance_mm: float = 0.1
     polygon_edge_length_tolerance_percent: float = 5.0
     polygon_angle_tolerance_deg: float = 2.0
+    min_polygon_sides: int = 3
+    max_polygon_sides: int = 64
     axis_tolerance_deg: float = 2.0
     solid_reinforcement: bool = True
     diagnostics_enabled: bool = True
@@ -75,6 +77,11 @@ _NUMERIC_RULES = {
     "axis_tolerance_deg": _NumericRule(0.0, 15.0),
 }
 
+_INTEGER_RULES = {
+    "min_polygon_sides": (3, 64),
+    "max_polygon_sides": (3, 64),
+}
+
 _BOOLEAN_KEYS = ("solid_reinforcement", "diagnostics_enabled")
 _KNOWN_KEYS = frozenset(HoleReinforcementConfig.__dataclass_fields__)
 
@@ -114,7 +121,7 @@ def parse_config(supplied: object) -> ConfigValidation:
     schema_version = supplied.get("schema_version", CURRENT_SCHEMA_VERSION)
     if type(schema_version) is not int:
         issues.append(ValidationIssue("schema_version", "type", "must be an integer"))
-    elif schema_version != CURRENT_SCHEMA_VERSION:
+    elif schema_version not in (1, CURRENT_SCHEMA_VERSION):
         issues.append(
             ValidationIssue(
                 "schema_version",
@@ -123,7 +130,7 @@ def parse_config(supplied: object) -> ConfigValidation:
             )
         )
     else:
-        values["schema_version"] = schema_version
+        values["schema_version"] = CURRENT_SCHEMA_VERSION
 
     for key, rule in _NUMERIC_RULES.items():
         value = supplied.get(key, defaults[key])
@@ -144,6 +151,20 @@ def parse_config(supplied: object) -> ConfigValidation:
             )
             continue
         values[key] = number
+
+    for key, (minimum, maximum) in _INTEGER_RULES.items():
+        value = supplied.get(key, defaults[key])
+        if type(value) is not int:
+            issues.append(ValidationIssue(key, "type", "must be an integer"))
+            continue
+        if value < minimum or value > maximum:
+            issues.append(
+                ValidationIssue(
+                    key, "range", f"must be between {minimum} and {maximum}"
+                )
+            )
+            continue
+        values[key] = value
 
     for key in _BOOLEAN_KEYS:
         value = supplied.get(key, defaults[key])
@@ -177,6 +198,15 @@ def parse_config(supplied: object) -> ConfigValidation:
                 "min_hole_diameter_mm",
                 "relation",
                 "must not exceed max_hole_diameter_mm",
+            )
+        )
+
+    if values["min_polygon_sides"] > values["max_polygon_sides"]:
+        issues.append(
+            ValidationIssue(
+                "min_polygon_sides",
+                "relation",
+                "must not exceed max_polygon_sides",
             )
         )
 
@@ -217,4 +247,3 @@ def _parse_choice_list(
 
 def _invalid(key: str, code: str, message: str) -> ConfigValidation:
     return ConfigValidation(None, (ValidationIssue(key, code, message),))
-

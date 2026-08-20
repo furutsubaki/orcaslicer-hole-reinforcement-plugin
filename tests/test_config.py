@@ -110,6 +110,24 @@ class ConfigValidationTests(unittest.TestCase):
             with self.subTest(value=value):
                 self.assertFalse(parse_config({"enabled_shapes": value}).is_valid)
 
+    def test_polygon_side_boundaries_and_relation_are_validated(self):
+        for key in ("min_polygon_sides", "max_polygon_sides"):
+            for value in (3, 64):
+                supplied = {key: value}
+                if key == "min_polygon_sides" and value == 64:
+                    supplied["max_polygon_sides"] = 64
+                if key == "max_polygon_sides" and value == 3:
+                    supplied["min_polygon_sides"] = 3
+                self.assertTrue(parse_config(supplied).is_valid)
+            for value in (2, 65, 3.0, True):
+                self.assertFalse(parse_config({key: value}).is_valid)
+
+        validation = parse_config(
+            {"min_polygon_sides": 13, "max_polygon_sides": 12}
+        )
+        self.assertFalse(validation.is_valid)
+        self.assertIn("relation", {issue.code for issue in validation.issues})
+
     def test_diameter_relation_is_validated(self):
         validation = parse_config(
             {"min_hole_diameter_mm": 5.0, "max_hole_diameter_mm": 4.0}
@@ -123,6 +141,10 @@ class ConfigValidationTests(unittest.TestCase):
         self.assertTrue(
             parse_config({"schema_version": CURRENT_SCHEMA_VERSION}).is_valid
         )
+
+        migrated = parse_config({"schema_version": 1})
+        self.assertTrue(migrated.is_valid)
+        self.assertEqual(migrated.config.schema_version, CURRENT_SCHEMA_VERSION)
 
         for value in (0, CURRENT_SCHEMA_VERSION + 1, "1", True):
             with self.subTest(value=value):

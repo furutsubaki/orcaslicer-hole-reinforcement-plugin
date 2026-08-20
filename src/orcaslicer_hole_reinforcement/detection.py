@@ -16,6 +16,7 @@ class HoleShape(Enum):
     CIRCLE = "circle"
     HEXAGON = "hexagon"
     OCTAGON = "octagon"
+    REGULAR_POLYGON = "regular_polygon"
 
 
 class HoleEndKind(Enum):
@@ -34,6 +35,21 @@ class CylindricalHoleCandidate:
     center_mm: Vector3
     axis: Vector3
     radius_mm: float
+    depth_mm: float
+    axial_start_mm: float
+    axial_end_mm: float
+    confidence: float
+    triangle_indices: tuple[int, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class PolygonalHoleCandidate:
+    shape: HoleShape
+    side_count: int
+    center_mm: Vector3
+    axis: Vector3
+    cross_section_mm: tuple[Vector3, ...]
+    across_flats_mm: float
     depth_mm: float
     axial_start_mm: float
     axial_end_mm: float

@@ -9,7 +9,7 @@ class PackageBoundaryTests(unittest.TestCase):
 
         import orcaslicer_hole_reinforcement
 
-        self.assertEqual(orcaslicer_hole_reinforcement.__version__, "0.0.1")
+        self.assertEqual(orcaslicer_hole_reinforcement.__version__, "0.1.0")
 
     def test_pure_interfaces_can_be_used_without_orcaslicer(self):
         from orcaslicer_hole_reinforcement.detection import (
@@ -110,7 +110,7 @@ class PackageBoundaryTests(unittest.TestCase):
 
             self.assertEqual(len(registered), 1)
             self.assertTrue(issubclass(registered[0], SlicingBase))
-            self.assertEqual(orcaslicer_hole_reinforcement.__version__, "0.0.1")
+            self.assertEqual(orcaslicer_hole_reinforcement.__version__, "0.1.0")
 
             capability = registered[0]()
             self.assertEqual(capability.get_default_config()["schema_version"], 2)

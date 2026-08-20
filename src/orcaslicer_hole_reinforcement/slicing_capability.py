@@ -1,5 +1,7 @@
 """OrcaSlicerのスライスパイプラインとの境界。"""
 
+from pathlib import Path
+
 import orca
 
 from .candidate_detection import HoleCandidateDetector
@@ -7,6 +9,14 @@ from .config import default_config_dict, parse_json_config
 from .config_ui import render_config_ui
 from .cylinder_detection import CylinderDetectionCancelled
 from .end_classification import HoleEndClassificationCancelled, HoleEndClassifier
+from .diagnostics import (
+    ContextDiagnosticSink,
+    DiagnosticEvent,
+    DiagnosticLevel,
+    JsonLinesDiagnosticSink,
+    NullDiagnosticSink,
+    SafeDiagnosticSink,
+)
 from .mesh_extraction import (
     MeshExtractionCancelled,
     VolumeRole,
@@ -27,6 +37,7 @@ from .version import __version__
 class HoleReinforcementCapability(orca.slicing.SlicingPipelineCapabilityBase):
     def __init__(self):
         self._classified_by_object = {}
+        self._diagnostic_sink_override = None
 
     def get_name(self):
         return "Hole Reinforcement"
@@ -80,6 +91,13 @@ class HoleReinforcementCapability(orca.slicing.SlicingPipelineCapabilityBase):
     def _detect(self, ctx, config):
         object_id = int(ctx.object.id())
         self._classified_by_object.pop(object_id, None)
+        diagnostics = ContextDiagnosticSink(
+            self._diagnostics(config),
+            {
+                "print_object_id": object_id,
+                "model_object_id": int(ctx.object.model_object().id()),
+            },
+        )
         classified = []
         volumes = extract_transformed_volumes(
             ctx.object, cancelled=ctx.cancelled
@@ -87,21 +105,64 @@ class HoleReinforcementCapability(orca.slicing.SlicingPipelineCapabilityBase):
         for volume in volumes:
             if ctx.cancelled():
                 return orca.ExecutionResult.success("Hole Reinforcement: cancelled")
+            volume_diagnostics = ContextDiagnosticSink(
+                diagnostics,
+                {
+                    "volume_id": volume.volume_id,
+                    "volume_index": volume.volume_index,
+                    "volume_role": volume.role.value,
+                },
+            )
             if volume.role is not VolumeRole.MODEL_PART:
+                volume_diagnostics.emit(
+                    DiagnosticEvent(
+                        DiagnosticLevel.INFO,
+                        "volume_detection_skipped",
+                        "検出対象外のボリュームを除外しました",
+                        {"reason": "unsupported_volume_role"},
+                    )
+                )
                 continue
             candidates = HoleCandidateDetector().detect(
                 volume.mesh, config, cancelled=ctx.cancelled
             )
-            classified.extend(
-                HoleEndClassifier().classify(
-                    volume.mesh,
-                    candidates,
-                    config,
-                    cancelled=ctx.cancelled,
+            classified_volume = HoleEndClassifier().classify(
+                volume.mesh,
+                candidates,
+                config,
+                diagnostics=volume_diagnostics,
+                cancelled=ctx.cancelled,
+            )
+            classified.extend(classified_volume)
+            volume_diagnostics.emit(
+                DiagnosticEvent(
+                    DiagnosticLevel.INFO,
+                    "volume_detection_completed",
+                    "ボリュームの穴検出が完了しました",
+                    {
+                        "candidate_count": len(candidates),
+                        "accepted_count": sum(hole.accepted for hole in classified_volume),
+                        "excluded_count": sum(
+                            not hole.accepted for hole in classified_volume
+                        ),
+                    },
                 )
             )
         self._classified_by_object[object_id] = tuple(classified)
         accepted = sum(hole.accepted for hole in classified)
+        diagnostics.emit(
+            DiagnosticEvent(
+                DiagnosticLevel.INFO,
+                "object_detection_completed",
+                "オブジェクトの穴検出が完了しました",
+                {
+                    "volume_count": len(volumes),
+                    "candidate_count": len(classified),
+                    "accepted_count": accepted,
+                    "excluded_count": len(classified) - accepted,
+                },
+            )
+        )
         return orca.ExecutionResult.success(
             f"Hole Reinforcement {__version__}: detected {accepted} hole(s)"
         )
@@ -132,11 +193,35 @@ class HoleReinforcementCapability(orca.slicing.SlicingPipelineCapabilityBase):
             geometry,
             cancelled=ctx.cancelled,
         )
+        self._diagnostics(config).emit(
+            DiagnosticEvent(
+                DiagnosticLevel.INFO,
+                "reinforcement_completed",
+                "ソリッド補強が完了しました",
+                {
+                    "print_object_id": int(ctx.object.id()),
+                    "reinforced_layer_count": len(planned),
+                    "target_region_count": sum(
+                        len(region.regions) for region in planned
+                    ),
+                    "solid_surface_count": result.solid_surfaces,
+                    "changed_collection_count": result.changed_collections,
+                },
+            )
+        )
         return orca.ExecutionResult.success(
             "Hole Reinforcement: solidified "
             f"{result.solid_surfaces} surface(s) in "
             f"{result.changed_collections} collection(s)"
         )
+
+    def _diagnostics(self, config):
+        if not config.diagnostics_enabled:
+            return NullDiagnosticSink()
+        if self._diagnostic_sink_override is not None:
+            return SafeDiagnosticSink(self._diagnostic_sink_override)
+        path = Path(__file__).resolve().with_name("diagnostic.jsonl")
+        return SafeDiagnosticSink(JsonLinesDiagnosticSink(path))
 
 
 def _copy_layer_plane(index, layer, holes, geometry, cancelled=lambda: False):

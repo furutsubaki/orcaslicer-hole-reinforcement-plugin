@@ -24,6 +24,8 @@ OrcaSlicerのプラグイン設定画面では独自GUIを使用する。有効�
 | `solid_reinforcement` | boolean | `true` | `true`、`false` | なし |
 | `diagnostics_enabled` | boolean | `true` | `true`、`false` | なし |
 
+`diagnostics_enabled`が`true`の場合、実行ごとの構造化診断をインストール済みプラグインと同じディレクトリの`diagnostic.jsonl`へ記録する。単一ファイルを5MiB上限で再利用し、書き込み不能な環境では診断だけを破棄してスライスを継続する。`false`の場合は診断ファイルへアクセスしない。
+
 すべての数値境界を含む。`min_hole_diameter_mm`は`max_hole_diameter_mm`以下、`min_polygon_sides`は`max_polygon_sides`以下でなければならない。JSONの`true`と`false`だけをbooleanとして扱い、`0`、`1`、文字列への暗黙変換は行わない。NaNとInfinityも拒否する。
 
 対応穴の契約における`Dmin`、`Dmax`、`Lmin`、`Tc`、`Te`、`Ta`は、それぞれ`min_hole_diameter_mm`、`max_hole_diameter_mm`、`min_hole_depth_mm`、`circle_radial_tolerance_mm`、`polygon_edge_length_tolerance_percent`、`polygon_angle_tolerance_deg`に対応する。

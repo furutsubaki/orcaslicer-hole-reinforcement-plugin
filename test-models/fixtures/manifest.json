@@ -1,0 +1,927 @@
+[
+  {
+    "id": "matrix-circle-through-0",
+    "file": "matrix-circle-through-0.stl",
+    "shape": "circle",
+    "axis": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-circle-blind-0",
+    "file": "matrix-circle-blind-0.stl",
+    "shape": "circle",
+    "axis": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "blind",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-hexagon-through-0",
+    "file": "matrix-hexagon-through-0.stl",
+    "shape": "hexagon",
+    "axis": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-hexagon-blind-0",
+    "file": "matrix-hexagon-blind-0.stl",
+    "shape": "hexagon",
+    "axis": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "blind",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-octagon-through-0",
+    "file": "matrix-octagon-through-0.stl",
+    "shape": "octagon",
+    "axis": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-octagon-blind-0",
+    "file": "matrix-octagon-blind-0.stl",
+    "shape": "octagon",
+    "axis": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "blind",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-circle-through-30",
+    "file": "matrix-circle-through-30.stl",
+    "shape": "circle",
+    "axis": [
+      0.8660254037844387,
+      0.0,
+      0.49999999999999994
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-circle-blind-30",
+    "file": "matrix-circle-blind-30.stl",
+    "shape": "circle",
+    "axis": [
+      0.8660254037844387,
+      0.0,
+      0.49999999999999994
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "blind",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-hexagon-through-30",
+    "file": "matrix-hexagon-through-30.stl",
+    "shape": "hexagon",
+    "axis": [
+      0.8660254037844387,
+      0.0,
+      0.49999999999999994
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-hexagon-blind-30",
+    "file": "matrix-hexagon-blind-30.stl",
+    "shape": "hexagon",
+    "axis": [
+      0.8660254037844387,
+      0.0,
+      0.49999999999999994
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "blind",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-octagon-through-30",
+    "file": "matrix-octagon-through-30.stl",
+    "shape": "octagon",
+    "axis": [
+      0.8660254037844387,
+      0.0,
+      0.49999999999999994
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-octagon-blind-30",
+    "file": "matrix-octagon-blind-30.stl",
+    "shape": "octagon",
+    "axis": [
+      0.8660254037844387,
+      0.0,
+      0.49999999999999994
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "blind",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-circle-through-45",
+    "file": "matrix-circle-through-45.stl",
+    "shape": "circle",
+    "axis": [
+      0.7071067811865476,
+      0.0,
+      0.7071067811865475
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-circle-blind-45",
+    "file": "matrix-circle-blind-45.stl",
+    "shape": "circle",
+    "axis": [
+      0.7071067811865476,
+      0.0,
+      0.7071067811865475
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "blind",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-hexagon-through-45",
+    "file": "matrix-hexagon-through-45.stl",
+    "shape": "hexagon",
+    "axis": [
+      0.7071067811865476,
+      0.0,
+      0.7071067811865475
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-hexagon-blind-45",
+    "file": "matrix-hexagon-blind-45.stl",
+    "shape": "hexagon",
+    "axis": [
+      0.7071067811865476,
+      0.0,
+      0.7071067811865475
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "blind",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-octagon-through-45",
+    "file": "matrix-octagon-through-45.stl",
+    "shape": "octagon",
+    "axis": [
+      0.7071067811865476,
+      0.0,
+      0.7071067811865475
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-octagon-blind-45",
+    "file": "matrix-octagon-blind-45.stl",
+    "shape": "octagon",
+    "axis": [
+      0.7071067811865476,
+      0.0,
+      0.7071067811865475
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "blind",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-circle-through-60",
+    "file": "matrix-circle-through-60.stl",
+    "shape": "circle",
+    "axis": [
+      0.5000000000000001,
+      0.0,
+      0.8660254037844386
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-circle-blind-60",
+    "file": "matrix-circle-blind-60.stl",
+    "shape": "circle",
+    "axis": [
+      0.5000000000000001,
+      0.0,
+      0.8660254037844386
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "blind",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-hexagon-through-60",
+    "file": "matrix-hexagon-through-60.stl",
+    "shape": "hexagon",
+    "axis": [
+      0.5000000000000001,
+      0.0,
+      0.8660254037844386
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-hexagon-blind-60",
+    "file": "matrix-hexagon-blind-60.stl",
+    "shape": "hexagon",
+    "axis": [
+      0.5000000000000001,
+      0.0,
+      0.8660254037844386
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "blind",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-octagon-through-60",
+    "file": "matrix-octagon-through-60.stl",
+    "shape": "octagon",
+    "axis": [
+      0.5000000000000001,
+      0.0,
+      0.8660254037844386
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-octagon-blind-60",
+    "file": "matrix-octagon-blind-60.stl",
+    "shape": "octagon",
+    "axis": [
+      0.5000000000000001,
+      0.0,
+      0.8660254037844386
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "blind",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-circle-through-90",
+    "file": "matrix-circle-through-90.stl",
+    "shape": "circle",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-circle-blind-90",
+    "file": "matrix-circle-blind-90.stl",
+    "shape": "circle",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "blind",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-hexagon-through-90",
+    "file": "matrix-hexagon-through-90.stl",
+    "shape": "hexagon",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-hexagon-blind-90",
+    "file": "matrix-hexagon-blind-90.stl",
+    "shape": "hexagon",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "blind",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-octagon-through-90",
+    "file": "matrix-octagon-through-90.stl",
+    "shape": "octagon",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "matrix-octagon-blind-90",
+    "file": "matrix-octagon-blind-90.stl",
+    "shape": "octagon",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "blind",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "direction-circle-through-0.1",
+    "file": "direction-circle-through-0.1.stl",
+    "shape": "circle",
+    "axis": [
+      0.9999984769132877,
+      0.0,
+      0.0017453283658983088
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "direction-circle-through-89.9",
+    "file": "direction-circle-through-89.9.stl",
+    "shape": "circle",
+    "axis": [
+      0.0017453283658982615,
+      0.0,
+      0.9999984769132877
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "diameter-below-min",
+    "file": "diameter-below-min.stl",
+    "shape": "circle",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 0.49,
+    "depth_mm": 12.0,
+    "end_kind": null,
+    "expected": "not_detected",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "diameter-at-min",
+    "file": "diameter-at-min.stl",
+    "shape": "circle",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 0.5,
+    "depth_mm": 12.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "diameter-at-max",
+    "file": "diameter-at-max.stl",
+    "shape": "circle",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 10.0,
+    "depth_mm": 12.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "diameter-above-max",
+    "file": "diameter-above-max.stl",
+    "shape": "circle",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 10.01,
+    "depth_mm": 12.0,
+    "end_kind": null,
+    "expected": "not_detected",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "depth-below-min",
+    "file": "depth-below-min.stl",
+    "shape": "circle",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 0.99,
+    "end_kind": null,
+    "expected": "not_detected",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "depth-at-min",
+    "file": "depth-at-min.stl",
+    "shape": "circle",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 1.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "circle-tolerance-inside",
+    "file": "circle-tolerance-inside.stl",
+    "shape": "circle",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {
+      "circle_radial_tolerance_mm": 0.060609665440987774
+    },
+    "dimension_tolerance_mm": 0.2
+  },
+  {
+    "id": "circle-tolerance-at",
+    "file": "circle-tolerance-at.stl",
+    "shape": "circle",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {
+      "circle_radial_tolerance_mm": 0.05060966544098777
+    },
+    "dimension_tolerance_mm": 0.2
+  },
+  {
+    "id": "circle-tolerance-outside",
+    "file": "circle-tolerance-outside.stl",
+    "shape": "circle",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": null,
+    "expected": "not_detected",
+    "reason": null,
+    "config": {
+      "circle_radial_tolerance_mm": 0.04060966544098777
+    },
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "polygon-edge-tolerance-inside",
+    "file": "polygon-edge-tolerance-inside.stl",
+    "shape": "hexagon",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {
+      "polygon_edge_length_tolerance_percent": 1.8128196293633159,
+      "polygon_angle_tolerance_deg": 15.0
+    },
+    "dimension_tolerance_mm": 0.2
+  },
+  {
+    "id": "polygon-edge-tolerance-at",
+    "file": "polygon-edge-tolerance-at.stl",
+    "shape": "hexagon",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {
+      "polygon_edge_length_tolerance_percent": 1.7128196293633158,
+      "polygon_angle_tolerance_deg": 15.0
+    },
+    "dimension_tolerance_mm": 0.2
+  },
+  {
+    "id": "polygon-edge-tolerance-outside",
+    "file": "polygon-edge-tolerance-outside.stl",
+    "shape": "hexagon",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": null,
+    "expected": "not_detected",
+    "reason": null,
+    "config": {
+      "polygon_edge_length_tolerance_percent": 1.6128196293633157,
+      "polygon_angle_tolerance_deg": 15.0
+    },
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "polygon-angle-tolerance-inside",
+    "file": "polygon-angle-tolerance-inside.stl",
+    "shape": "hexagon",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {
+      "polygon_edge_length_tolerance_percent": 25.0,
+      "polygon_angle_tolerance_deg": 2.0649400883560642
+    },
+    "dimension_tolerance_mm": 0.2
+  },
+  {
+    "id": "polygon-angle-tolerance-at",
+    "file": "polygon-angle-tolerance-at.stl",
+    "shape": "hexagon",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": "through",
+    "expected": "accepted",
+    "reason": null,
+    "config": {
+      "polygon_edge_length_tolerance_percent": 25.0,
+      "polygon_angle_tolerance_deg": 1.9649400883560642
+    },
+    "dimension_tolerance_mm": 0.2
+  },
+  {
+    "id": "polygon-angle-tolerance-outside",
+    "file": "polygon-angle-tolerance-outside.stl",
+    "shape": "hexagon",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": null,
+    "expected": "not_detected",
+    "reason": null,
+    "config": {
+      "polygon_edge_length_tolerance_percent": 25.0,
+      "polygon_angle_tolerance_deg": 1.8649400883560643
+    },
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "negative-outer-cylinder",
+    "file": "negative-outer-cylinder.stl",
+    "shape": "circle",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": null,
+    "expected": "not_detected",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "negative-open-groove",
+    "file": "negative-open-groove.stl",
+    "shape": "circle",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": null,
+    "expected": "not_detected",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "negative-ellipse",
+    "file": "negative-ellipse.stl",
+    "shape": "circle",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": null,
+    "expected": "not_detected",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "negative-irregular-hexagon",
+    "file": "negative-irregular-hexagon.stl",
+    "shape": "hexagon",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": null,
+    "expected": "not_detected",
+    "reason": null,
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "negative-internal-cavity",
+    "file": "negative-internal-cavity.stl",
+    "shape": "octagon",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": null,
+    "expected": "rejected",
+    "reason": "both_ends_closed",
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  },
+  {
+    "id": "negative-broken-mesh",
+    "file": "negative-broken-mesh.stl",
+    "shape": "octagon",
+    "axis": [
+      6.123233995736766e-17,
+      0.0,
+      1.0
+    ],
+    "diameter_mm": 4.0,
+    "depth_mm": 12.0,
+    "end_kind": null,
+    "expected": "rejected",
+    "reason": "incomplete_or_non_manifold_rim",
+    "config": {},
+    "dimension_tolerance_mm": 1e-06
+  }
+]

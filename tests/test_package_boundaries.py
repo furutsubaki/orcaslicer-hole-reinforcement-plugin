@@ -23,6 +23,10 @@ class PackageBoundaryTests(unittest.TestCase):
             DiagnosticLevel,
             NullDiagnosticSink,
         )
+        from orcaslicer_hole_reinforcement.end_classification import (
+            HoleEndClassifier,
+            HoleEndState,
+        )
         from orcaslicer_hole_reinforcement.reinforcement import (
             LayerPlane,
             ReinforcementRegion,
@@ -45,10 +49,13 @@ class PackageBoundaryTests(unittest.TestCase):
         region = ReinforcementRegion(layer_index=0, contours_mm=())
         sink = NullDiagnosticSink()
         sink.emit(DiagnosticEvent(DiagnosticLevel.INFO, "test", "ok"))
+        classifier = HoleEndClassifier()
 
         self.assertEqual(len(mesh.vertices_mm), 1)
         self.assertEqual(hole.shape, HoleShape.CIRCLE)
         self.assertEqual(layer.index, region.layer_index)
+        self.assertIsInstance(classifier, HoleEndClassifier)
+        self.assertEqual(HoleEndState.OPEN.value, "open")
 
     def test_orcaslicer_import_registers_slicing_capability(self):
         registered = []

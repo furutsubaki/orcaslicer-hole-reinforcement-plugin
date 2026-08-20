@@ -12,7 +12,7 @@ license = "MIT"
 authors = [
   { name = "furutsubaki" },
 ]
-dependencies = []
+dependencies = ["numpy"]
 
 [tool.hatch.version]
 path = "src/orcaslicer_hole_reinforcement/version.py"

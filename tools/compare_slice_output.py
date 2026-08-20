@@ -782,7 +782,7 @@ def main():
     parser.add_argument(
         "--supported-commit", default="f5f3d2221dd929360407aa2ae6759302a8d2c575"
     )
-    parser.add_argument("--plugin-version", default="0.0.1")
+    parser.add_argument("--plugin-version", default="0.1.0")
     args = parser.parse_args()
 
     try:

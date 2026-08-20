@@ -2,6 +2,8 @@
 
 issue15の受け入れ条件を満たすため、matrixフィクスチャ30件をプラグインON/OFFでスライスし、ツールパス差分と診断出力を突き合わせます。
 
+issue15の検証はプラグイン`0.0.1`で実施しました。本書のログ抜粋はそのときの実測値です。手順部分は現在のバージョン`0.1.0`で記載しています。
+
 ## OrcaSlicer CLIの制約
 
 CLIモードではプラグイン機構が初期化されません。CLIのログには`orca_plugins`も`AUDIT`も現れず、診断ファイルも生成されないため、**スライス自体をCLIで自動化することはできません**。GUIのログには`[AUDIT] plugin=orcaslicer_hole_reinforcement-0.0.1-py3-none-any`が多数出力されます。
@@ -20,14 +22,14 @@ CLIはプラグインを一切読まないため、CLIが出力するG-codeは**
 uv build --wheel
 ```
 
-バージョンが同じ`0.0.1`のままなので上書きされません。次の順で入れ替えます。
+wheelのファイル名にバージョンが入るため、旧版を残したまま入れると別プラグインとして並存します。次の順で入れ替えます。
 
 1. OrcaSlicerで「Hole Reinforcement」をアンインストールする
 2. OrcaSlicerを終了する
-3. `dist/orcaslicer_hole_reinforcement-0.0.1-py3-none-any.whl`をインストールする
+3. `dist/orcaslicer_hole_reinforcement-0.1.0-py3-none-any.whl`をインストールする
 4. OrcaSlicerを再起動する
 
-プラグイン設定の`plugin_key`は`orcaslicer_hole_reinforcement-0.0.1-py3-none-any`です。PoC版の`hole_reinforcement_detector_poc`とは別物なので取り違えないでください。
+プラグイン設定の`plugin_key`は`orcaslicer_hole_reinforcement-0.1.0-py3-none-any`です。
 
 ### 2. 検証用3mfを生成する
 
@@ -57,7 +59,7 @@ python3 tools/build_verification_project.py --work-dir <作業ディレクトリ
 
 ```bash
 DATADIR="$HOME/Library/Application Support/OrcaSlicer"
-DIAG="$DATADIR/orca_plugins/orcaslicer_hole_reinforcement-0.0.1-py3-none-any.whl/__whl_extracted__/orcaslicer_hole_reinforcement/orcaslicer_hole_reinforcement/diagnostic.jsonl"
+DIAG="$DATADIR/orca_plugins/orcaslicer_hole_reinforcement-0.1.0-py3-none-any.whl/__whl_extracted__/orcaslicer_hole_reinforcement/orcaslicer_hole_reinforcement/diagnostic.jsonl"
 : > "$DIAG"
 ls -l "$DATADIR/log/"python_*.log
 ```

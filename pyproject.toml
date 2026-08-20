@@ -24,5 +24,4 @@ packages = ["src/orcaslicer_hole_reinforcement"]
 exclude = [
   "/.scratch",
   "/test-models",
-  "/hole_reinforcement_detector_poc.py",
 ]

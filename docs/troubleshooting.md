@@ -1,0 +1,116 @@
+# トラブルシューティング
+
+穴が検出されない、想定外の場所が補強される、といった場合の切り分け手順です。
+
+## まず設定値を実寸と突き合わせる
+
+**重要**: 径と深さが設定範囲を外れた穴は、候補に入る前の段階で捨てられます。除外理由は診断ファイルに記録されないため、「診断に何も出ない＝検出処理が動いていない」とは限りません。
+
+診断を見る前に、対象の穴について次を確認してください。
+
+| 設定 | 確認すること |
+| --- | --- |
+| `min_hole_diameter_mm` / `max_hole_diameter_mm` | 穴径がこの範囲に収まっているか。円は直径、多角形は対辺寸法で判定する |
+| `min_hole_depth_mm` | 穴の深さがこの値以上か |
+| `enabled_shapes` | その穴の断面形状が有効になっているか |
+| `enabled_end_kinds` | 貫通穴・止まり穴の該当する側が有効になっているか |
+| `solid_reinforcement` | `false`だと検出だけ行い、スライス結果を変更しない |
+
+寸法は**造形座標**で評価されます。モデルを拡大縮小して配置している場合は、拡縮後の実寸で比較してください。
+
+## 診断ファイルを読む
+
+### 有効化と場所
+
+設定の`diagnostics_enabled`を`true`にすると、実行ごとの構造化ログがJSON Lines形式で記録されます。macOSでの場所は次のとおりです。
+
+```
+~/Library/Application Support/OrcaSlicer/orca_plugins/orcaslicer_hole_reinforcement-0.1.0-py3-none-any.whl/__whl_extracted__/orcaslicer_hole_reinforcement/orcaslicer_hole_reinforcement/diagnostic.jsonl
+```
+
+単一ファイルを5MiB上限で再利用します。上限へ達すると先頭から書き直すため、古い記録は残りません。切り分けたいスライスの**直前にファイルを退避**してから実行すると読みやすくなります。
+
+書き込みに失敗した場合は診断だけを破棄してスライスを続行するため、権限の問題でファイルが増えないこともあります。
+
+### レコードの形
+
+1行が1イベントです。
+
+```json
+{"timestamp":"...","level":"info","code":"hole_end_classified","message":"穴端を分類しました","details":{...}}
+```
+
+`level`は`info`、`warning`、`error`のいずれかです。現在の実装が実際に出すのは`info`と`warning`だけなので、まず`warning`の行から見てください。
+
+`code`が`diagnostic_event_truncated`の行は、詳細が大きすぎて省略されたイベントです。`details.original_code`に元のイベント名が入ります。
+
+### イベント一覧
+
+| `code` | `level` | 意味と主な`details` |
+| --- | --- | --- |
+| `volume_detection_skipped` | info | 検出対象外のボリュームを除外した。`reason`（例: `unsupported_volume_role`） |
+| `volume_detection_completed` | info | ボリューム単位の検出完了。`candidate_count`、`accepted_count`、`excluded_count`、`analysis_seconds`、`vertex_count`、`triangle_count`、`cache_hit` |
+| `hole_end_classified` | info / warning | 穴端を分類した。`accepted`が`false`なら`warning`になる |
+| `hole_end_uncertain` | warning | 穴端を確定できなかった |
+| `object_detection_completed` | info | オブジェクト単位の検出完了。`volume_count`、`candidate_count`、`accepted_count`、`excluded_count` |
+| `reinforcement_completed` | info | ソリッド補強の完了。`reinforced_layer_count`、`target_region_count`、`solid_surface_count`、`changed_collection_count`、`reinforced_layers` |
+
+`hole_end_classified`と`hole_end_uncertain`の`details`には、候補の`shape`、`side_count`、`diameter_mm`、`depth_mm`、`center_mm`、`axis`、`confidence`に加え、`start_state`、`end_state`、`end_kind`、`accepted`、`reason`が入ります。`center_mm`で「モデルのどの穴の話か」を特定できます。
+
+`reinforcement_completed`の`reinforced_layers`には、補強したレイヤごとに`layer_index`、`print_z_mm`、`region_count`、`bbox_mm`が入ります。プレビューで補強が見当たらないときは、ここの`print_z_mm`とプレビューのレイヤ高さを突き合わせてください。
+
+どのイベントにも、対象オブジェクトを特定するための`print_object_id`と`model_object_id`が付きます。名前を取得できたときは`model_object_name`が、取得できなかったときは代わりに`model_object_attributes`（ホスト側で参照できた属性名の一覧）が入ります。配置座標を取得できたときは`object_origin_mm`も付きます。
+
+`model_object_id`は実行時IDで3mfのidとは別体系なので、モデルとの対応付けには`model_object_name`か`object_origin_mm`を使ってください。
+
+ボリューム単位のイベント（`volume_detection_skipped`、`volume_detection_completed`と、その配下の`hole_end_*`）には、さらに`volume_id`、`volume_index`、`volume_role`が付きます。
+
+### 除外理由コード
+
+`hole_end_classified`と`hole_end_uncertain`の`details.reason`に入ります。
+
+| `reason` | 意味 | 対処 |
+| --- | --- | --- |
+| `both_ends_open` | 両端が開いた貫通穴として分類した | 採用時の理由。`accepted`が`false`なら`enabled_end_kinds`を確認 |
+| `one_end_closed` | 一端が閉じた止まり穴として分類した | 同上 |
+| `both_ends_closed` | 両端が閉じている | 内部空洞であり穴として扱わない。仕様どおり |
+| `incomplete_or_non_manifold_rim` | 穴の縁が全周にわたって多様体接続していない | メッシュの破損。CADから再エクスポートするか、メッシュ修復を掛ける |
+| `through_disabled` | 貫通穴として分類したが設定で無効 | `enabled_end_kinds`に`through`を追加する |
+| `blind_disabled` | 止まり穴として分類したが設定で無効 | `enabled_end_kinds`に`blind`を追加する |
+
+## 症状別の切り分け
+
+### 穴が検出されない
+
+1. 設定値と実寸を突き合わせる（本書冒頭）。ここで外れていれば診断には何も出ない
+2. `object_detection_completed`の`candidate_count`を見る
+   - `0`なら形状検出の段階で候補が立っていない。断面が真円・正多角形から許容差以上にずれている可能性がある。`circle_radial_tolerance_mm`、`polygon_edge_length_tolerance_percent`、`polygon_angle_tolerance_deg`を緩めて再試行する
+   - `0`でなく`accepted_count`が`0`なら穴端分類で落ちている。`hole_end_*`の`reason`を見る
+3. `volume_detection_skipped`が出ていれば、そのボリュームが検出対象外（モディファイヤやサポート用ボリュームなど）と判断されている
+
+### 穴ではない窪みまで補強される
+
+- `min_hole_depth_mm`を上げて浅い窪みを除外する
+- `max_hole_diameter_mm`を下げて大きな座ぐりを除外する
+- 形状の許容差を締める。許容差を緩めていると、丸みを帯びた凹形状が円と判定されやすくなる
+- `hole_end_classified`の`center_mm`と`diameter_mm`で、実際にどこが拾われたかを特定してから設定を調整する
+
+### 補強がプレビューに現れない
+
+1. `solid_reinforcement`が`true`か確認する
+2. `reinforcement_completed`の`solid_surface_count`を見る。`0`なら補強対象のSurfaceがなかった
+3. GUIでスライスしているか確認する。CLIではプラグインが読み込まれない
+4. 穴の周囲がもともとOrcaSlicer標準の内部ソリッドやブリッジで埋まっている場合、補強を掛けても見た目が変わらないことがある。この場合`solid_surface_count`は`0`より大きいのにプレビュー差分が出ない
+
+### スライスが`FatalError`で止まる
+
+設定が不正な状態です。UIの入力制御とは別に、スライス処理の入口でも同じ検証を行うため、設定ファイルを直接編集した場合などに起こります。設定画面で「既定値に戻す」を実行してください。
+
+## 報告するとき
+
+不具合を報告する場合は次を添えてください。
+
+- OrcaSlicerのバージョンとビルド、OS
+- プラグインのバージョン
+- 該当スライスの`diagnostic.jsonl`（`diagnostics_enabled`を`true`にして再現させたもの）
+- 再現するモデル（STLまたは3mf）と、設定値

@@ -54,6 +54,11 @@
 | `hole_end_uncertain` | warning | 穴端を確定できなかった |
 | `object_detection_completed` | info | オブジェクト単位の検出完了。`volume_count`、`candidate_count`、`accepted_count`、`excluded_count` |
 | `reinforcement_completed` | info | ソリッド補強の完了。`reinforced_layer_count`、`target_region_count`、`solid_surface_count`、`changed_collection_count`、`reinforced_layers` |
+| `config_migrated` | info | 旧バージョンの設定を引き継いだ。`source_plugin_key`、`source_plugin_version`、`rejected_count`、`stored`（保存できたか） |
+| `config_migration_skipped` | info | 引き継ぎ元が見つからず既定値で動作する。`reason`（`no_host_config` / `no_donor`）、`rejected_count` |
+| `config_migration_failed` | warning | ホストの設定ファイルを読めず既定値で動作する。`reason`（`unreadable`） |
+| `preset_override_stale` | warning | プリセットに旧バージョン向けの設定が残っており参照されていない。`plugin_keys` |
+| `preset_scan_completed` | info | 設定画面を開いたときのプリセット読み取り結果。`own_plugin_key`、`preset_count`、`values`（項目ごとの型と先頭120文字）、`stale_overrides`、`stale_plugin_refs`、失敗時は`error` |
 
 `hole_end_classified`と`hole_end_uncertain`の`details`には、候補の`shape`、`side_count`、`diameter_mm`、`depth_mm`、`center_mm`、`axis`、`confidence`に加え、`start_state`、`end_state`、`end_kind`、`accepted`、`reason`が入ります。`center_mm`で「モデルのどの穴の話か」を特定できます。
 
@@ -105,6 +110,30 @@
 ### スライスが`FatalError`で止まる
 
 設定が不正な状態です。UIの入力制御とは別に、スライス処理の入口でも同じ検証を行うため、設定ファイルを直接編集した場合などに起こります。設定画面で「既定値に戻す」を実行してください。
+
+### 更新後に「現在のプリセットに必要なローカルプラグインが見つかりません」と出る
+
+プリセットはプラグインの参照を`plugins`項目へバージョン込みで記録します（`orcaslicer_hole_reinforcement-<version>-py3-none-any;;Hole Reinforcement`）。更新するとこの参照が外れ、OrcaSlicerの`PluginResolver`が解決できないプラグインとして扱います。
+
+- モデルを読み込むと通知が出て、**スライスがブロックされます**
+- プロセス設定の「プラグイン設定」にも何も表示されません
+
+プロセス設定の「スライスパイプラインプラグイン」でプラグインを選び直し、プリセットを保存してください。`plugins`は保存時に再生成されます。
+
+これはOrcaSlicer本体の挙動で、プラグイン側からは検知も通知もしていません。
+
+### 更新後に設定が既定値へ戻っている
+
+更新後の初回読み込み時に旧バージョンのエントリから設定を引き継ぎますが、次の場合は引き継がれません。`config_migration_*`は`diagnostics_enabled`の設定に依らず記録されるため、診断が無効のままでも`diagnostic.jsonl`を確認できます。
+
+1. `diagnostic.jsonl`に`config_migrated`があるか確認する。あれば引き継ぎは成功しており、`source_plugin_key`が引き継ぎ元を示す
+2. `config_migration_skipped`で`reason`が`no_host_config`の場合、`orca_plugins/config.json`が見つからない。どのプラグインもまだ設定を保存していない環境ではファイル自体が無いため、旧バージョンで設定を保存した覚えがなければ正常である。心当たりがある場合は、プラグインをwheelから正規の手順でインストールしたか確認する
+3. `reason`が`no_donor`の場合、引き継ぎ元のエントリが無い。`orca_plugins/config.json`に`"capability": "Hole Reinforcement"`のエントリが残っているか確認する。`rejected_count`が`1`以上なら、エントリはあるが現在のスキーマで検証を通らなかった（設定ファイルを直接編集した、または未対応の新しい形式）。`config.json`はあるが`config`配列を持たない場合もここに入る
+4. `config_migration_failed`の場合、`config.json`が壊れているか読み取れない
+
+プリセット側で上書きした値（プリセットoverride）は引き継ぎの対象外です。OrcaSlicerはoverrideもプラグインのバージョンごとに保持しますが、プラグインへ公開されているプリセットAPIは読み取り専用で、書き戻して復元できません。更新後に設定し直してください。
+
+旧バージョン向けのoverrideが残っていると、設定画面の上部に警告が出て、診断へ`preset_override_stale`（対象の`plugin_keys`付き）が記録されます。値そのものはプリセットに残っているため、`user/<プロファイル>/process/<プリセット>.json`の`print_plugin_config_overrides`を開けば元の値を確認できます。
 
 ## 報告するとき
 

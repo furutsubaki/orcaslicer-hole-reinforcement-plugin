@@ -1,5 +1,6 @@
-import unittest
+import json
 import re
+import unittest
 
 from orcaslicer_hole_reinforcement.config import default_config_dict
 from orcaslicer_hole_reinforcement.config_ui import render_config_ui
@@ -88,6 +89,60 @@ class ConfigUiTests(unittest.TestCase):
 
         self.assertNotIn("--orca-background", html)
         self.assertNotIn("--orca-text-secondary", html)
+
+    def test_initial_config_defaults_to_default_config(self):
+        html = render_config_ui()
+
+        expected = json.dumps(default_config_dict(), ensure_ascii=False)
+        self.assertIn(f"var initial = {expected};", html)
+
+    def test_initial_config_carries_migrated_values(self):
+        migrated = {**default_config_dict(), "reinforcement_width_mm": 3.5}
+        html = render_config_ui("ja_JP", migrated)
+
+        self.assertIn(
+            f"var initial = {json.dumps(migrated, ensure_ascii=False)};", html
+        )
+        self.assertIn(
+            f"var defaults = {json.dumps(default_config_dict(), ensure_ascii=False)};",
+            html,
+        )
+
+    def test_initial_config_is_used_only_when_host_config_is_empty(self):
+        html = render_config_ui()
+
+        self.assertIn(
+            "var initialValid = populate(hasValues(config) ? config : initial);", html
+        )
+        self.assertIn("return !!config && Object.keys(config).length > 0;", html)
+
+    def test_initial_config_escapes_markup_like_defaults(self):
+        html = render_config_ui("en_US", {"enabled_shapes": ["</script>"]})
+
+        self.assertIn('var initial = {"enabled_shapes": ["\\u003c/script>"]};', html)
+
+    def test_stale_override_notice_is_hidden_by_default(self):
+        html = render_config_ui("ja_JP")
+
+        self.assertIn('id="stale-override"', html)
+        self.assertIn('role="status" hidden>', html)
+
+    def test_stale_override_notice_lists_the_affected_plugin_keys(self):
+        html = render_config_ui("ja_JP", None, ("a-0.1.0", "b-0.2.0"))
+
+        self.assertIn("旧バージョン向けに保存された設定が残っています", html)
+        self.assertIn("<code>a-0.1.0/ b-0.2.0</code>", html)
+        self.assertNotIn('role="status" hidden>', html)
+
+    def test_stale_override_notice_escapes_plugin_keys(self):
+        html = render_config_ui("en_US", None, ("<img src=x>",))
+
+        self.assertIn("&lt;img src=x&gt;", html)
+
+    def test_stale_override_notice_ignores_non_string_keys(self):
+        html = render_config_ui("en_US", None, (None, 12))
+
+        self.assertIn('role="status" hidden>', html)
 
     def test_rendered_ui_has_no_unresolved_template_tokens(self):
         for language in ("en_US", "ja_JP"):

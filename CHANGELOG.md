@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+### 追加
+
+- プラグイン更新後の設定引き継ぎ。更新後の初回読み込み時に、OrcaSlicerの`orca_plugins/config.json`から旧バージョンのエントリを読み取り、設定を自動で復元します。引き継ぎの成否は診断へ`config_migrated` / `config_migration_skipped` / `config_migration_failed`として記録します
+  - 引き継げるのはプラグイン設定画面で保存した値だけです。プリセットoverrideは、ホストのプリセットAPIが読み取り専用で書き戻せないため対象外です
+- プリセットに旧バージョン向けの設定（override）が残っている場合の警告。設定画面の上部に表示し、診断へ`preset_override_stale`を記録します
+  - 引き継ぎに失敗した場合は既定値で動作し、スライスは妨げません
+
 ## [0.1.0] - 2026-08-21
 
 初回公開。OrcaSlicer Nightly `2.5.0-dev` / Build `872c660c`で実機検証しました。

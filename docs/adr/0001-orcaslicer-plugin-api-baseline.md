@@ -74,13 +74,15 @@
 | --- | --- |
 | `has_config_ui()` | `True`を返し、標準JSONエディタの代わりに独自UIを選択する |
 | `get_config_ui()` | sandbox化されたframeへ埋め込むHTML断片を返す。空文字または例外時は標準JSONエディタへフォールバックする |
-| `get_config()` | 有効なcapability設定をJSON文字列で取得する。未保存時は`"{}"`を返す |
+| `on_load()` | プラグイン読み込み時に1回呼ばれる。この時点ではホストの初期投入前で`get_config()`は`"{}"`を返す。例外を送出するとプラグインの読み込み自体が失敗する |
+| `get_config()` | 有効なcapability設定をJSON文字列で取得する。未保存時は`"{}"`を返すが、ホストは`on_load()`直後に`get_default_config()`を初期投入するため、通常の実行時点では空にならない |
 | `get_config_version()` | 保存時のプラグインバージョンを取得し、設定移行の要否を判断する |
 | `save_config(json.dumps(config))` | capability自身のグローバル設定を保存する。JSON不正または書き込み失敗時は`False`を返し、既存値を維持する |
 | `get_default_config()` | 「既定値に戻す」で保存するobjectを返す。ホストはプラグイン固有の型、範囲、相関を検証しない |
 | `window.orca.getConfig()` / `saveConfig()` | 独自HTMLとPluginsダイアログ間で同じ設定を読み書きするbridge |
+| `orca.host.preset_bundle()` | プリセットを読み取る。`config_keys()`と`config_value(key)`のみで書き込めない。`config_value()`は`opt_serialize()`経由のため、文字列値は`escape_string_cstyle()`でエスケープされて返る |
 
-設定はcapabilityの`plugin_key`、種別、名前、プラグインバージョンと共にOrcaSlicerのplugin設定へ保存される。プリセット側にcapability overrideがある場合、`get_config()`はoverrideを優先した有効値を返す。UIと実行処理は必ず同じ`get_config()`を起点にし、プラグイン側でスキーマ検証してから使用する。
+設定はcapabilityの`plugin_key`、種別、名前、プラグインバージョンと共にOrcaSlicerのplugin設定へ保存される。ホストは`plugin_loader::load()`の直後、当該`plugin_key`のエントリが無いときだけ`get_default_config()`を初期投入する（`PluginManager.cpp`）。プリセット側にcapability overrideがある場合、`get_config()`はoverrideを優先した有効値を返す。UIと実行処理は必ず同じ`get_config()`を起点にし、プラグイン側でスキーマ検証してから使用する。
 
 独自HTMLはframe全体を所有し、保存・復元操作も`window.orca` bridgeで行う。スライス中の`execute(ctx)`からUIを開いたり更新したりしない。
 
@@ -108,6 +110,10 @@
 - ワーカースレッドまたは参照寿命の契約が変わった
 - meshまたは行列の座標系、単位、所有権、可変性が変わった
 - 設定UI、保存、復元、プリセットoverrideの意味が変わった
+- `orca_plugins/config.json`のレイアウト（`config`配列と各エントリの`capability`、`capability_type`、`plugin_key`、`plugin_version`、`cap_config`）が変わった、または監査フックの許可ルートと拒否ファイル名の扱いが変わった（ADR 0002の設定引き継ぎが依存する）
+- `on_load()`がPythonへ転送されなくなった、または`get_default_config()`の初期投入が`on_load()`より前へ移った（ADR 0002の設定引き継ぎが発火しなくなる）
+- `ConfigOptionString`のシリアライズ形式（`escape_string_cstyle()`によるエスケープ）が変わった（ADR 0002のoverride検知が依存する）
+- プリセットの`plugins`が未解決のときにホストが通知とスライスブロックを行わなくなった（プラグイン側はこの検知を本体へ委ねている）
 - 実機確認でクラッシュ、デッドロック、形状破損、設定消失、再現不能な差分が発生した
 
 互換性が不明な場合は機能単位の推測で許可せず、未対応として安全に拒否する。対応コミットの追加または削除は、本ADRの追記か後継ADRで記録する。

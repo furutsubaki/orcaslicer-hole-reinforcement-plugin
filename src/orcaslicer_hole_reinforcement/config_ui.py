@@ -6,21 +6,38 @@ from html import escape
 from .config import default_config_dict
 
 
-def render_config_ui(language: object = "") -> str:
+def render_config_ui(
+    language: object = "",
+    initial: object = None,
+    stale_override_keys: object = (),
+) -> str:
     language_code = language if isinstance(language, str) else ""
     locale = "ja" if language_code.lower().replace("-", "_").startswith("ja") else "en"
     texts = _TRANSLATIONS[locale]
-    defaults = json.dumps(default_config_dict(), ensure_ascii=False).replace("<", "\\u003c")
-    validation_texts = json.dumps(texts["validation"], ensure_ascii=False).replace(
-        "<", "\\u003c"
-    )
-    html = _HTML.replace("__DEFAULT_CONFIG__", defaults).replace(
-        "__VALIDATION_TEXTS__", validation_texts
+    default_config = default_config_dict()
+    defaults = _embed(default_config)
+    # ホストは保存済み設定を読み終えてからget_config_ui()を呼ぶため、引き継いだ値は
+    # HTMLへ載せる以外に初回表示へ届かない。
+    initial_config = _embed(initial if isinstance(initial, dict) else default_config)
+    validation_texts = _embed(texts["validation"])
+    stale_keys = [key for key in (stale_override_keys or ()) if isinstance(key, str)]
+    stale_notice = texts["ui"]["stale_override"] if stale_keys else ""
+    html = (
+        _HTML.replace("__DEFAULT_CONFIG__", defaults)
+        .replace("__INITIAL_CONFIG__", initial_config)
+        .replace("__VALIDATION_TEXTS__", validation_texts)
     )
     html = html.replace("__LANG__", locale)
+    html = html.replace("__STALE_OVERRIDE__", escape(stale_notice))
+    html = html.replace("__STALE_HIDDEN__", "" if stale_keys else " hidden")
+    html = html.replace("__STALE_KEYS__", escape("/ ".join(stale_keys)))
     for key, value in texts["ui"].items():
         html = html.replace(f"__{key.upper()}__", escape(value))
     return html
+
+
+def _embed(value: object) -> str:
+    return json.dumps(value, ensure_ascii=False).replace("<", "\\u003c")
 
 
 _TRANSLATIONS = {
@@ -30,6 +47,11 @@ _TRANSLATIONS = {
             "intro": "Configure which holes to detect and how their surroundings are solidified.",
             "format_label": "Configuration format:",
             "format_help": "v2 (managed automatically by the plugin for compatibility checks)",
+            "stale_override": (
+                "This preset still holds settings saved for an older version of this plugin. "
+                "OrcaSlicer keys preset overrides by plugin version, and the plugin cannot restore "
+                "them. Set the values again here, or in the preset's plugin settings."
+            ),
             "dimensions": "Target dimensions",
             "min_diameter": "Minimum hole diameter",
             "min_diameter_help": "Holes smaller than this are ignored. Must not exceed the maximum diameter.",
@@ -89,6 +111,11 @@ _TRANSLATIONS = {
             "intro": "対象にする穴と、穴周辺をソリッド化する条件を設定します。",
             "format_label": "設定形式:",
             "format_help": "v2（互換性判定のためプラグインが自動管理します）",
+            "stale_override": (
+                "このプリセットに、旧バージョン向けに保存された設定が残っています。"
+                "OrcaSlicerはプリセット側の設定をプラグインのバージョンごとに保持するため、"
+                "プラグインからは復元できません。この画面かプリセットの設定で入力し直してください。"
+            ),
             "dimensions": "対象寸法",
             "min_diameter": "最小穴径",
             "min_diameter_help": "これより小さい穴は補強しません。最大穴径以下にしてください。",
@@ -206,6 +233,18 @@ _HTML = r"""
     background: color-mix(in srgb, #b3261e 8%, transparent);
   }
   [data-orca-theme="dark"] .error { color: #ffb4ab; border-color: #ffb4ab; }
+  .notice {
+    margin: 0 0 14px;
+    padding: 9px 11px;
+    border: 1px solid #8a6d00;
+    border-radius: 4px;
+    color: #6b5400;
+    background: color-mix(in srgb, #8a6d00 8%, transparent);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .notice code { word-break: break-all; }
+  [data-orca-theme="dark"] .notice { color: #ffd479; border-color: #ffd479; }
   .actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 2px; }
   .save-status { color: var(--orca-muted, #666); font-size: 12px; }
   button { min-height: 44px; padding: 8px 16px; border: 1px solid var(--orca-border, #999); border-radius: 4px; color: inherit; background: var(--orca-bg, #eee); cursor: pointer; }
@@ -222,6 +261,7 @@ _HTML = r"""
   <h1>__TITLE__</h1>
   <p class="intro">__INTRO__</p>
   <p class="intro"><strong>__FORMAT_LABEL__</strong> __FORMAT_HELP__</p>
+  <p id="stale-override" class="notice" role="status"__STALE_HIDDEN__>__STALE_OVERRIDE__<br><code>__STALE_KEYS__</code></p>
   <div id="errors" class="error" role="alert" aria-live="assertive" hidden></div>
 
   <fieldset>
@@ -261,6 +301,7 @@ _HTML = r"""
   "use strict";
   document.documentElement.lang = "__LANG__";
   var defaults = __DEFAULT_CONFIG__;
+  var initial = __INITIAL_CONFIG__;
   var texts = __VALIDATION_TEXTS__;
   var numericKeys = ["min_hole_diameter_mm", "max_hole_diameter_mm", "reinforcement_width_mm", "min_hole_depth_mm", "min_polygon_sides", "max_polygon_sides", "circle_radial_tolerance_mm", "polygon_edge_length_tolerance_percent", "polygon_angle_tolerance_deg", "axis_tolerance_deg"];
   var booleanKeys = ["solid_reinforcement", "diagnostics_enabled"];
@@ -323,9 +364,13 @@ _HTML = r"""
     }, 5000);
   }
 
+  function hasValues(config) {
+    return !!config && Object.keys(config).length > 0;
+  }
+
   function receiveConfig(config) {
     if (!initialized) {
-      var initialValid = populate(config);
+      var initialValid = populate(hasValues(config) ? config : initial);
       initialized = true;
       setSaveStatus(initialValid ? texts.auto_save : texts.invalid_not_saved);
       return;
@@ -368,7 +413,7 @@ _HTML = r"""
   form.addEventListener("input", persistIfValid);
   form.addEventListener("submit", function (event) { event.preventDefault(); });
   document.getElementById("restore").addEventListener("click", function () { restorePending = true; window.orca.restoreDefaults(); });
-  if (window.orca.onConfig) window.orca.onConfig(receiveConfig); else { var initialValid = populate(window.orca.getConfig()); initialized = true; setSaveStatus(initialValid ? texts.auto_save : texts.invalid_not_saved); }
+  if (window.orca.onConfig) window.orca.onConfig(receiveConfig); else { receiveConfig(window.orca.getConfig()); }
 })();
 </script>
 """

@@ -1,11 +1,23 @@
 """OrcaSlicerのスライスパイプラインとの境界。"""
 
+import json
 from pathlib import Path
+from threading import Lock
 
 import orca
 
 from .analysis import AnalysisCancelled, HoleAnalysisCache
-from .config import default_config_dict, parse_json_config
+from .config import ConfigValidation, default_config_dict
+from .config_migration import (
+    PRESET_OVERRIDE_KEYS,
+    REASON_MIGRATED,
+    REASON_UNREADABLE,
+    current_plugin_key,
+    find_stale_preset_overrides,
+    host_config_is_empty,
+    migrate_config,
+    parse_host_config,
+)
 from .config_ui import render_config_ui
 from .cylinder_detection import CylinderDetectionCancelled
 from .end_classification import HoleEndClassificationCancelled
@@ -40,6 +52,11 @@ class HoleReinforcementCapability(orca.slicing.SlicingPipelineCapabilityBase):
         self._classified_by_object = {}
         self._diagnostic_sink_override = None
         self._analysis_cache = HoleAnalysisCache()
+        self._host_config_path_override = None
+        self._migration = None
+        self._stale_reported = False
+        # execute()はスライスワーカースレッドで走るため、引き継ぎ結果の解決を排他する。
+        self._migration_lock = Lock()
 
     def get_name(self):
         return "Hole Reinforcement"
@@ -50,12 +67,47 @@ class HoleReinforcementCapability(orca.slicing.SlicingPipelineCapabilityBase):
     def has_config_ui(self):
         return True
 
+    def on_load(self):
+        """ホストが既定値を初期投入する直前に、旧バージョンの設定を引き継ぐ。
+
+        ホストは`plugin_loader::load()`の直後、`has_config()`が偽のときだけ
+        `get_default_config()`を保存する（`PluginManager.cpp`）。エントリが存在しない
+        このタイミングだけが引き継ぎ元を適用できる唯一の機会であり、ここで保存すれば
+        ホスト側の初期投入はスキップされる。
+        """
+        try:
+            self._migrate_on_load()
+        except Exception:
+            # on_load()が例外を送出するとプラグインの読み込み自体が失敗する。
+            return
+
+    def _migrate_on_load(self):
+        if not host_config_is_empty(self._host_config()):
+            return
+        migration = self._resolve_migration()
+        if migration.reason != REASON_MIGRATED:
+            self._report_migration(migration, stored=False)
+            return
+        stored = self._store_config(migration.config)
+        self._report_migration(migration, stored=stored)
+
+    def _store_config(self, config):
+        try:
+            return bool(
+                self.save_config(json.dumps(config.to_dict(), ensure_ascii=False))
+            )
+        except (AttributeError, RuntimeError):
+            return False
+
     def get_config_ui(self):
         try:
             language = orca.host.app_language()
         except (AttributeError, RuntimeError):
             language = ""
-        return render_config_ui(language)
+        initial = None
+        if host_config_is_empty(self._host_config()):
+            initial = self._resolve_migration().config.to_dict()
+        return render_config_ui(language, initial, self._stale_preset_overrides())
 
     def execute(self, ctx):
         if ctx.step not in (
@@ -64,7 +116,7 @@ class HoleReinforcementCapability(orca.slicing.SlicingPipelineCapabilityBase):
         ):
             return orca.ExecutionResult.skipped()
 
-        validation = parse_json_config(self.get_config())
+        validation = self._resolve_config()
         if not validation.is_valid:
             return orca.ExecutionResult.failure(
                 orca.PluginResult.FatalError,
@@ -76,6 +128,7 @@ class HoleReinforcementCapability(orca.slicing.SlicingPipelineCapabilityBase):
 
         config = validation.config
         assert config is not None
+        self._report_stale_overrides()
         try:
             if ctx.step == orca.slicing.Step.posSlice:
                 return self._detect(ctx, config)
@@ -240,13 +293,178 @@ class HoleReinforcementCapability(orca.slicing.SlicingPipelineCapabilityBase):
             f"{result.changed_collections} collection(s)"
         )
 
+    def _report_stale_overrides(self):
+        """スライスのたびではなく、セッション中1回だけ知らせる。"""
+        with self._migration_lock:
+            if self._stale_reported:
+                return
+            self._stale_reported = True
+        stale = self._stale_preset_overrides()
+        if not stale:
+            return
+        self._migration_sink().emit(
+            DiagnosticEvent(
+                DiagnosticLevel.WARNING,
+                "preset_override_stale",
+                "プリセットに旧バージョン向けの設定が残っており、参照されていません",
+                {"plugin_keys": list(stale)},
+            )
+        )
+
+    def _stale_preset_overrides(self):
+        """プリセットに残った旧バージョン向けoverrideの`plugin_key`を集める。
+
+        overrideは`plugin_key`込みで保持されるため更新で参照されなくなるが、
+        ホストが公開するプリセットAPIは読み取り専用で書き戻して復元できない。
+        利用者が黙って失うことのないよう、検知して知らせるだけに留める。
+
+        capability参照（`plugins`）が古い場合はホスト側の`PluginResolver`が通知を出し、
+        スライスもブロックするため、こちらでは扱わない。
+        """
+        scan = {"own_plugin_key": None, "preset_count": 0, "values": {}}
+        try:
+            own_key = current_plugin_key(Path(__file__).resolve().parent)
+            scan["own_plugin_key"] = own_key
+            overrides = []
+            presets = self._edited_presets()
+            scan["preset_count"] = len(presets)
+            for preset in presets:
+                for key in PRESET_OVERRIDE_KEYS:
+                    raw = self._preset_value(preset, key)
+                    scan["values"][key] = _describe_preset_value(raw)
+                    for plugin_key in find_stale_preset_overrides(
+                        raw, self.get_name(), own_key
+                    ):
+                        if plugin_key not in overrides:
+                            overrides.append(plugin_key)
+            stale = tuple(overrides)
+        except Exception as error:
+            scan["error"] = f"{type(error).__name__}: {error}"
+            stale = ()
+        self._report_preset_scan(scan, stale)
+        return stale
+
+    def _report_preset_scan(self, scan, stale):
+        """検知が空振りした理由を追えるよう、読み取った内容をそのまま残す。
+
+        握り潰した例外や、想定と違う戻り値の形は、記録しないと実機で追えない。
+        """
+        self._migration_sink().emit(
+            DiagnosticEvent(
+                DiagnosticLevel.INFO,
+                "preset_scan_completed",
+                "プリセットの参照を確認しました",
+                {**scan, "stale_overrides": list(stale)},
+            )
+        )
+
+    @staticmethod
+    def _preset_value(preset, key):
+        try:
+            return preset.config_value(key)
+        except Exception:
+            return None
+
+    def _edited_presets(self):
+        bundle = orca.host.preset_bundle()
+        presets = []
+        for accessor in ("current_process_preset", "current_print_preset"):
+            method = getattr(bundle, accessor, None)
+            if method is None:
+                continue
+            try:
+                preset = method()
+            except Exception:
+                continue
+            if preset is not None and preset not in presets:
+                presets.append(preset)
+        return presets
+
+    def _resolve_config(self):
+        # execute()はオブジェクトとステップごとに呼ばれる。空判定と検証で二度パースしない。
+        validation = parse_host_config(self._host_config())
+        if validation is not None:
+            return validation
+        # 保存にも初期投入にも失敗したホストでは、引き継ぎ結果か既定値で動く。
+        return ConfigValidation(self._resolve_migration().config)
+
+    def _host_config(self):
+        """設定を取れないホストでは未保存として扱い、引き継ぎか既定値へ退避する。"""
+        try:
+            return self.get_config()
+        except (AttributeError, RuntimeError):
+            return None
+
+    def _resolve_migration(self):
+        with self._migration_lock:
+            if self._migration is None:
+                self._migration = migrate_config(
+                    Path(__file__).resolve().parent,
+                    self.get_name(),
+                    config_path=self._host_config_path_override,
+                )
+            return self._migration
+
+    def _report_migration(self, migration, *, stored):
+        if migration.reason == REASON_MIGRATED:
+            event = DiagnosticEvent(
+                DiagnosticLevel.INFO,
+                "config_migrated",
+                "旧バージョンの設定を引き継ぎました",
+                {
+                    "source_plugin_key": migration.source_plugin_key,
+                    "source_plugin_version": migration.source_plugin_version,
+                    "rejected_count": migration.rejected_count,
+                    "stored": stored,
+                },
+            )
+        elif migration.reason == REASON_UNREADABLE:
+            event = DiagnosticEvent(
+                DiagnosticLevel.WARNING,
+                "config_migration_failed",
+                "ホストの設定ファイルを読めなかったため既定値で動作します",
+                {"reason": migration.reason},
+            )
+        else:
+            event = DiagnosticEvent(
+                DiagnosticLevel.INFO,
+                "config_migration_skipped",
+                "引き継ぎ元が見つからなかったため既定値で動作します",
+                {
+                    "reason": migration.reason,
+                    "rejected_count": migration.rejected_count,
+                },
+            )
+        self._migration_sink().emit(event)
+
+    def _migration_sink(self):
+        """移行の記録はdiagnostics_enabledに依らず残す。
+
+        引き継いだ設定で診断が無効だと、診断を有効化するために設定を保存した時点で
+        引き継ぎが発火しなくなり、原因を追う手掛かりが残らないため。
+        """
+        if self._diagnostic_sink_override is not None:
+            return SafeDiagnosticSink(self._diagnostic_sink_override)
+        return SafeDiagnosticSink(JsonLinesDiagnosticSink(self._diagnostic_path()))
+
     def _diagnostics(self, config):
         if not config.diagnostics_enabled:
             return NullDiagnosticSink()
         if self._diagnostic_sink_override is not None:
             return SafeDiagnosticSink(self._diagnostic_sink_override)
-        path = Path(__file__).resolve().with_name("diagnostic.jsonl")
-        return SafeDiagnosticSink(JsonLinesDiagnosticSink(path))
+        return SafeDiagnosticSink(JsonLinesDiagnosticSink(self._diagnostic_path()))
+
+    def _diagnostic_path(self):
+        return Path(__file__).resolve().with_name("diagnostic.jsonl")
+
+
+def _describe_preset_value(raw):
+    """値そのものではなく、型と長さと先頭だけを残す。"""
+    if raw is None:
+        return None
+    if isinstance(raw, str):
+        return {"type": "str", "length": len(raw), "head": raw[:120]}
+    return {"type": type(raw).__name__, "repr": repr(raw)[:120]}
 
 
 def _object_context(ctx):

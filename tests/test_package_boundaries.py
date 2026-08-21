@@ -112,7 +112,13 @@ class PackageBoundaryTests(unittest.TestCase):
             self.assertTrue(issubclass(registered[0], SlicingBase))
             self.assertEqual(orcaslicer_hole_reinforcement.__version__, "0.1.0")
 
+            from orcaslicer_hole_reinforcement.diagnostics import (
+                MemoryDiagnosticSink,
+            )
+
             capability = registered[0]()
+            # 診断の既定の書き出し先はパッケージ内。テストがsrc/を汚さないよう差し替える。
+            capability._diagnostic_sink_override = MemoryDiagnosticSink()
             self.assertEqual(capability.get_default_config()["schema_version"], 2)
             self.assertTrue(capability.has_config_ui())
             self.assertIn('id="config-form"', capability.get_config_ui())

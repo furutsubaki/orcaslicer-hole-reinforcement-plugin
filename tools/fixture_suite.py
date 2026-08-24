@@ -563,6 +563,13 @@ def _ascii_stl(name, vertices, triangles):
 
 
 def _numbers(values):
+    """往復精度で書き出す。
+
+    桁を落として環境差を吸収する案は採れない。検出の許容差が1e-9のため、それを
+    下回る量子で丸める必要がある一方、環境差は1e-15程度あり、丸め境界をまたぐ値
+    が確率的に生じる。両立する桁数が存在しないため、精度は保ったままにして、
+    committed fixtureとの一致は数値比較で確かめる（tests/test_fixture_suite.py）。
+    """
     return " ".join(format(value, ".17g") for value in values)
 
 

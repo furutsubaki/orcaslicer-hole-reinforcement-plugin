@@ -1,61 +1,67 @@
 # 公開前チェックリスト
 
-初回公開（GitHubリポジトリ作成とIssues移行）と、以降の各リリースで実施する手順です。
+初回公開（GitHubリポジトリ作成）と、以降の各リリースで実施する手順です。
 
 ## 初回公開のみ
 
 ### 1. GitHubリポジトリを作成する
 
-ローカルの`git init`は実施済みで、`git remote`は未設定です。
-
 - [ ] リポジトリ`furutsubaki/orcaslicer-hole-reinforcement-plugin`を作成する（Public、README・.gitignore・LICENSEの自動生成はすべてオフ。ローカルに実体があるため）
-- [ ] Issuesを有効にする
+- [ ] Issuesを有効にし、マージ後のブランチ削除を有効にする
 - [ ] `git remote add origin git@github.com:furutsubaki/orcaslicer-hole-reinforcement-plugin.git`
-- [ ] `develop`と`main`をpushし、`main`をデフォルトブランチにする
+- [ ] `main`と`develop`をpushし、`main`をデフォルトブランチにする
 - [ ] `CHANGELOG.md`末尾のcompare/releaseリンクが実際のリポジトリURLと一致していることを確認する
 
-### 2. ローカルissueをGitHub Issuesへ移行する
+### 2. ブランチ保護を設定する
 
-現在は`.scratch/formal-plugin/`配下のMarkdownで管理しています（[`docs/agents/issue-tracker.md`](agents/issue-tracker.md)）。
+ルールセット（classic branch protectionではない）で`main`と`develop`を保護します。
 
-- [ ] `.scratch/formal-plugin/PRD.md`の内容をGitHubへ移す（Issue、Discussion、`docs/`配下のいずれか。実装済みの正式版仕様は`docs/`配下の各文書が正のため、PRDは経緯の記録として扱う）
-- [ ] `.scratch/formal-plugin/issues/01`〜`16`をGitHub Issuesへ起票する。全件`completed`のため、本文とコメントを移したうえでcloseする。`Category:`は`bug` / `enhancement`ラベルへ、`Status:`はopen/closeへ対応させる
+- [ ] 対象を`refs/heads/main`と`refs/heads/develop`にする
+- [ ] ブランチの削除とforce pushを禁止する
+- [ ] ステータスチェック`check`の成功を必須にし、strict（ベースブランチへの追従）を有効にする。`check`は[`.github/workflows/pr-check.yml`](../.github/workflows/pr-check.yml)のジョブ名であり、**変えるとチェックを通さずマージできてしまう**
+- [ ] 管理者のbypassはPR経由のみに限定する
+
+### 3. Issuesを整備する
+
+正式公開前のローカルissue（`.scratch/formal-plugin/`）は全件completeで、設計判断の根拠は`docs/`配下へ転記済みのため削除しました。GitHubへ移行する対象はありません。
+
 - [ ] ラベルを整備する（[`docs/agents/triage-labels.md`](agents/triage-labels.md)の定義に合わせる）
-- [ ] `docs/agents/issue-tracker.md`を、GitHub Issues運用へ書き換える
-- [ ] 移行が完了したら`.scratch/formal-plugin/`を削除し、`.gitignore`の`.scratch`の扱いを見直す
 
 ## 各リリース共通
 
-### 3. 変更内容を確定する
+### 4. 変更内容を確定する
 
 - [ ] `CHANGELOG.md`の`[Unreleased]`へ変更を書き、新しいバージョン見出しへ移す
-- [ ] バージョンを更新する。`src/orcaslicer_hole_reinforcement/version.py`が唯一の定義元だが、次のハードコードも合わせて更新する
-  - `tests/test_package_boundaries.py`（バージョンのアサーション2箇所）
-  - `tools/compare_slice_output.py`の`--plugin-version`既定値
-  - `README.md`のwheelファイル名
-  - `docs/orcaslicer-integration-verification.md`の手順中のパスと`plugin_key`
-  - `docs/troubleshooting.md`の`diagnostic.jsonl`のパス
+- [ ] `src/orcaslicer_hole_reinforcement/version.py`の`__version__`を更新する。ここが唯一の定義元で、他にバージョンのハードコードは無い
+- [ ] **メジャーを上げる場合のみ**、同ファイルの`__wheel_version__`も合わせる。マイナー・パッチでは触らない（`tests/test_package_metadata.py`がズレを検出する）
 
-### 4. 検証する
+  wheelのファイル名にはメジャーしか入らないため、マイナー・パッチ更新ではdocsのパスや`plugin_key`の記載を追随させる必要はありません（[ADR 0003](adr/0003-fix-wheel-version-for-stable-plugin-key.md)）。
+
+### 5. 検証する
+
+PRを出せば[`check`ワークフロー](../.github/workflows/pr-check.yml)が次の3つを自動で実行します。手元で先に確認する場合のコマンドを併記します。
 
 - [ ] `PYTHONPATH=src python3 -m unittest discover -s tests`が全件成功する
-- [ ] `uv build --wheel`が成功し、`dist/orcaslicer_hole_reinforcement-<version>-py3-none-any.whl`が生成される
-- [ ] README・docsの相対リンクがすべて実在するファイルを指している
-- [ ] 実機スモーク: OrcaSlicer Nightlyへ新しいwheelをインストールし、フィクスチャ1件をGUIでスライスして、検出結果の表示と`diagnostic.jsonl`の出力を確認する。**旧版は先にアンインストールする**（ファイル名にバージョンが入るため、残すと別プラグインとして並存する）
+- [ ] `python3 tools/check_doc_links.py`が通る（README・docsの相対リンクが実在する）
+- [ ] `uv build --wheel`が成功し、`dist/orcaslicer_hole_reinforcement-<メジャー>-py3-none-any.whl`が生成される
+- [ ] 既定値を変更した場合、`tools/fixture_suite.py`の寸法境界を追随させ、`PYTHONPATH=src python3 tools/fixture_suite.py`でフィクスチャを再生成する
+- [ ] 実機スモーク: OrcaSlicer Nightlyへ新しいwheelをインストールし、フィクスチャ1件をGUIでスライスして、検出結果の表示と`diagnostic.jsonl`の出力を確認する。**`diagnostic.jsonl`の`plugin_version`が今回のバージョンであることを必ず確認する**（インストールが反映されていないまま検証すると偽の合格を出す）
 - [ ] OrcaSlicerのAPI基準コミットを変更した場合は、[`docs/adr/0001-orcaslicer-plugin-api-baseline.md`](adr/0001-orcaslicer-plugin-api-baseline.md)の互換性判定手順を実施し、結果をADRへ追記する
 - [ ] 対応範囲（OrcaSlicerのビルド、OS、穴形状・方向・穴端）に変更があれば`README.md`の対応範囲表を更新する
 
-### 5. ライセンスを確認する
+### 6. ライセンスを確認する
 
 - [ ] 依存関係を追加・変更した場合、[`docs/third-party-licenses.md`](third-party-licenses.md)を更新する
 - [ ] 第三者コードを取り込んだ場合、そのライセンスと著作権表示を配布物へ含める
 
-### 6. リリースする
+### 7. リリースする
 
 - [ ] `main`へマージする
 - [ ] `git tag v<version>`を打ち、pushする
-- [ ] GitHub Releaseを作成し、`CHANGELOG.md`の該当セクションを本文にする
-- [ ] ビルドしたwheelをReleaseへ添付する
-- [ ] 対応するOrcaSlicerのビルドと、検証済みOSをRelease本文に明記する
-- [ ] バージョンを上げた場合、更新後にプロセス設定でプラグインを選び直す必要がある旨をRelease本文に明記する（プリセットの`plugins`が版込みの参照を持つため、選び直さないとOrcaSlicerがスライスをブロックする）
-- [ ] バージョンを上げた場合、実機で設定の引き継ぎを確認する（旧バージョンで設定を保存した状態から更新し、設定画面に旧値が出ることと`diagnostic.jsonl`へ`config_migrated`が出ることを確認する）。引き継ぎ対象外のプリセットoverrideがある場合はRelease本文に明記する
+
+  [`release`ワークフロー](../.github/workflows/release.yml)が起動し、タグと`version.py`の一致を確認したうえでテストとビルドを回し、`CHANGELOG.md`の該当セクションを本文にしたReleaseを作成してwheelを添付します。タグと`__version__`がズレていると失敗します。
+
+- [ ] Releaseの内容を確認する。対応するOrcaSlicerのビルドと検証済みOSが本文に含まれていなければ追記する
+- [ ] 実機で更新後も設定が保持されることを確認する（旧バージョンで設定を保存した状態から更新し、設定画面に同じ値が出ることを確認する）
+- [ ] **メジャーを上げたリリースでは**、旧版のアンインストールとプロセス設定でのプラグインの選び直しが必要な旨をRelease本文に明記する。`plugin_key`が変わり、プリセットの参照が外れてスライスがブロックされるため（[ADR 0003](adr/0003-fix-wheel-version-for-stable-plugin-key.md)）
+- [ ] 既定値を変更した場合、更新した利用者の設定は引き継がれるため**新しい既定値は適用されない**旨をRelease本文に明記する（新しい既定値を使うには設定画面で「既定値に戻す」が必要）

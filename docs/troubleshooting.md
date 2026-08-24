@@ -25,7 +25,7 @@
 設定の`diagnostics_enabled`を`true`にすると、実行ごとの構造化ログがJSON Lines形式で記録されます。macOSでの場所は次のとおりです。
 
 ```
-~/Library/Application Support/OrcaSlicer/orca_plugins/orcaslicer_hole_reinforcement-0.1.0-py3-none-any.whl/__whl_extracted__/orcaslicer_hole_reinforcement/orcaslicer_hole_reinforcement/diagnostic.jsonl
+~/Library/Application Support/OrcaSlicer/orca_plugins/orcaslicer_hole_reinforcement-1-py3-none-any.whl/__whl_extracted__/orcaslicer_hole_reinforcement/orcaslicer_hole_reinforcement/diagnostic.jsonl
 ```
 
 単一ファイルを5MiB上限で再利用します。上限へ達すると先頭から書き直すため、古い記録は残りません。切り分けたいスライスの**直前にファイルを退避**してから実行すると読みやすくなります。
@@ -58,7 +58,7 @@
 | `config_migration_skipped` | info | 引き継ぎ元が見つからず既定値で動作する。`reason`（`no_host_config` / `no_donor`）、`rejected_count` |
 | `config_migration_failed` | warning | ホストの設定ファイルを読めず既定値で動作する。`reason`（`unreadable`） |
 | `preset_override_stale` | warning | プリセットに旧バージョン向けの設定が残っており参照されていない。`plugin_keys` |
-| `preset_scan_completed` | info | 設定画面を開いたときのプリセット読み取り結果。`own_plugin_key`、`preset_count`、`values`（項目ごとの型と先頭120文字）、`stale_overrides`、`stale_plugin_refs`、失敗時は`error` |
+| `preset_scan_completed` | info | 設定画面を開いたときのプリセット読み取り結果。`own_plugin_key`、`preset_count`、`values`（項目ごとの型と先頭120文字）、`stale_overrides`、失敗時は`error` |
 
 `hole_end_classified`と`hole_end_uncertain`の`details`には、候補の`shape`、`side_count`、`diameter_mm`、`depth_mm`、`center_mm`、`axis`、`confidence`に加え、`start_state`、`end_state`、`end_kind`、`accepted`、`reason`が入ります。`center_mm`で「モデルのどの穴の話か」を特定できます。
 
@@ -113,6 +113,8 @@
 
 ### 更新後に「現在のプリセットに必要なローカルプラグインが見つかりません」と出る
 
+**現在のバージョンではこの症状は起きません。** wheelのファイル名を固定し、プラグインの識別キーがリリース間で変わらないようにしたためです（[ADR 0003](adr/0003-fix-wheel-version-for-stable-plugin-key.md)）。以下は、ファイル名を固定する前の開発版（`0.0.1`〜`0.2.0`）から更新した場合にだけ該当します。
+
 プリセットはプラグインの参照を`plugins`項目へバージョン込みで記録します（`orcaslicer_hole_reinforcement-<version>-py3-none-any;;Hole Reinforcement`）。更新するとこの参照が外れ、OrcaSlicerの`PluginResolver`が解決できないプラグインとして扱います。
 
 - モデルを読み込むと通知が出て、**スライスがブロックされます**
@@ -135,11 +137,19 @@
 
 旧バージョン向けのoverrideが残っていると、設定画面の上部に警告が出て、診断へ`preset_override_stale`（対象の`plugin_keys`付き）が記録されます。値そのものはプリセットに残っているため、`user/<プロファイル>/process/<プリセット>.json`の`print_plugin_config_overrides`を開けば元の値を確認できます。
 
+### `preset_override_stale`の警告が消えない
+
+**プラグインの設定画面で値を直しても、この警告は消えません。** 設定画面が書き込むのは`orca_plugins/config.json`で、プリセットのoverrideとは別の保存先だからです。
+
+消すには**プリセットのプラグイン設定**（プロセス設定側）で値を入力し直してください。現在の`plugin_key`でエントリが追加され、警告は出なくなります。
+
+古いエントリ自体はプリセットに残り続けます。OrcaSlicerの`prune_unreferenced()`は型と名前で判定するため刈り取られず、プラグインへ公開されているプリセットAPIは読み取り専用で削除もできません。ただし現在のキーのエントリがあれば、失われる値は無いためプラグインは警告しません。完全に消したい場合は`user/<プロファイル>/process/<プリセット>.json`の`print_plugin_config_overrides`から該当エントリを手で削除してください。
+
 ## 報告するとき
 
 不具合を報告する場合は次を添えてください。
 
 - OrcaSlicerのバージョンとビルド、OS
-- プラグインのバージョン
+- プラグインのバージョン（設定画面の見出し、スライス完了時のメッセージ、`diagnostic.jsonl`の`plugin_version`のいずれかで確認できます。プラグイン一覧や`Plugin Info`タブに出るのはメジャーバージョンだけなので、そちらの値では足りません）
 - 該当スライスの`diagnostic.jsonl`（`diagnostics_enabled`を`true`にして再現させたもの）
 - 再現するモデル（STLまたは3mf）と、設定値

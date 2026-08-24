@@ -14,14 +14,21 @@ authors = [
 ]
 dependencies = ["numpy"]
 
+# wheelのバージョンはメジャーだけ。OrcaSlicerはインストール元wheelのstemをplugin_keyに
+# するため、ここが動くと別プラグイン扱いになり、プリセットのplugins参照が外れて
+# スライスがブロックされる。実バージョン（__version__）はversion.pyが別に持つ。
+# 判断の経緯はdocs/adr/0003-fix-wheel-version-for-stable-plugin-key.mdを参照。
 [tool.hatch.version]
 path = "src/orcaslicer_hole_reinforcement/version.py"
+pattern = '^__wheel_version__ = "(?P<version>[^"]+)"'
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/orcaslicer_hole_reinforcement"]
 
 [tool.hatch.build.targets.sdist]
 exclude = [
+  # ディレクトリは削除済みだが、.gitignoreに載っていないため保護はここだけ。
+  # ローカル作業で復活したときに配布物へ混入させない。
   "/.scratch",
   "/test-models",
 ]

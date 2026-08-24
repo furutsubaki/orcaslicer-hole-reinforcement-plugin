@@ -1,8 +1,8 @@
 # OrcaSlicer実機での統合検証
 
-issue15の受け入れ条件を満たすため、matrixフィクスチャ30件をプラグインON/OFFでスライスし、ツールパス差分と診断出力を突き合わせます。
+matrixフィクスチャ30件をプラグインON/OFFでスライスし、ツールパス差分と診断出力を突き合わせます。
 
-issue15の検証はプラグイン`0.0.1`で実施しました。本書のログ抜粋はそのときの実測値です。手順部分は現在のバージョン`0.1.0`で記載しています。
+本書のログ抜粋と「基準実測値」節は、プラグイン`0.0.1`・当時の既定値での実測です。手順部分は現在のバージョンで記載しています。
 
 ## OrcaSlicer CLIの制約
 
@@ -16,20 +16,20 @@ CLIはプラグインを一切読まないため、CLIが出力するG-codeは**
 
 ### 1. wheelを再ビルドして再インストールする
 
-診断へモデル名と補強対象レイヤを記録する改修が入っているため、GUI検証の前に1回必要です。
+**検証したいコードがインストールされていることを、検証の前に必ず確認してください。**
 
 ```bash
 uv build --wheel
 ```
 
-wheelのファイル名にバージョンが入るため、旧版を残したまま入れると別プラグインとして並存します。次の順で入れ替えます。
+1. OrcaSlicerを終了する
+2. `dist/orcaslicer_hole_reinforcement-1-py3-none-any.whl`をインストールする
+3. OrcaSlicerを再起動する
+4. 1件スライスし、`diagnostic.jsonl`の`plugin_version`が意図したバージョンであることを確認する
 
-1. OrcaSlicerで「Hole Reinforcement」をアンインストールする
-2. OrcaSlicerを終了する
-3. `dist/orcaslicer_hole_reinforcement-0.1.0-py3-none-any.whl`をインストールする
-4. OrcaSlicerを再起動する
+手順4を省かないでください。過去に、常に`skipped`を返す実装前のスタブ版がインストールされたままON/OFF比較を行い、「差分ゼロ」という**偽の合格**を出したことがあります。ON側で差分が出ないときは、まずインストール済みwheelの中身を疑ってください。
 
-プラグイン設定の`plugin_key`は`orcaslicer_hole_reinforcement-0.1.0-py3-none-any`です。
+プラグイン設定の`plugin_key`は`orcaslicer_hole_reinforcement-1-py3-none-any`で、リリース間で変わりません（[ADR 0003](adr/0003-fix-wheel-version-for-stable-plugin-key.md)）。
 
 ### 2. 検証用3mfを生成する
 
@@ -37,7 +37,11 @@ wheelのファイル名にバージョンが入るため、旧版を残したま
 python3 tools/build_verification_project.py --work-dir <作業ディレクトリ>
 ```
 
-`manifest.json`から`printable: true`のmatrixフィクスチャ30件を選び、1プレートに配置した`verify-matrix.3mf`と、フィクスチャ名との対応表`objects.json`、そしてCLIベースライン`baseline-cli/plate_1.gcode`を出力します。GUI起動中でも競合しないよう、datadirは作業ディレクトリへ複製してから使います。
+`manifest.json`から`printable: true`のmatrixフィクスチャ30件を選び、1プレートに配置した`verify-matrix.3mf`と、フィクスチャ名との対応表`objects.json`、そしてCLIベースライン`baseline-cli/plate_1.gcode`を出力します。
+
+GUI起動中でも競合しないよう、datadirは作業ディレクトリへ複製してから使います。
+
+生成済みの`verify-matrix.3mf`は[`test-models/verification/verify-matrix.3mf`](../test-models/verification/verify-matrix.3mf)にコミットしてあります。3mfだけあれば足りる場合はこちらを使えます。フィクスチャSTLを変更したときは再生成してください。
 
 作業ディレクトリはリポジトリ外を指定してください。生成物が約37MB（大半はdatadirの複製）になり、リポジトリ内だと`.gitignore`の変更が必要になります。実datadirの内側や親を指定するとエラーで止まります。複製先を消してから作るため、重なっていると本体を消してしまうためです。
 
@@ -59,7 +63,7 @@ python3 tools/build_verification_project.py --work-dir <作業ディレクトリ
 
 ```bash
 DATADIR="$HOME/Library/Application Support/OrcaSlicer"
-DIAG="$DATADIR/orca_plugins/orcaslicer_hole_reinforcement-0.1.0-py3-none-any.whl/__whl_extracted__/orcaslicer_hole_reinforcement/orcaslicer_hole_reinforcement/diagnostic.jsonl"
+DIAG="$DATADIR/orca_plugins/orcaslicer_hole_reinforcement-1-py3-none-any.whl/__whl_extracted__/orcaslicer_hole_reinforcement/orcaslicer_hole_reinforcement/diagnostic.jsonl"
 : > "$DIAG"
 ls -l "$DATADIR/log/"python_*.log
 ```
@@ -107,6 +111,27 @@ python3 tools/compare_slice_output.py \
 - 補強対象レイヤ以外に生じた差分
 - Python例外と診断の警告・エラー
 
+## 基準実測値
+
+2026-08-21にmatrixフィクスチャ30件で実測した値です。再検証したとき桁が合っているかの目安に使ってください。
+
+**この値はプラグイン`0.0.1`・当時の既定値（`min_hole_diameter_mm=0.5`、`reinforcement_width_mm=2.0`、`min_hole_depth_mm=1.0`）での計測です。現在の既定値では補強幅が広いため、これより増加します。現行既定値での基準値ではありません。**
+
+| 項目 | OFF | ON | 差分 |
+| --- | --- | --- | --- |
+| `Internal solid infill` | | | +4132.20mm（30件すべてで増加） |
+| `Sparse infill` | | | -409.75mm |
+| `Gap infill` | | | +206.34mm |
+| フィラメント使用量 | 30782.52mm | 34115.31mm | +3332.79mm |
+| 印刷時間見積り | 3h26m57s | 3h59m5s | +32m8s |
+
+スパースインフィルがソリッドへ置き換わるという意図どおりの結果です。サポート系の押出種別は両者に現れません。
+
+- 30件すべてで穴を1件ずつ検出・採用し、補強レイヤ数は30〜63
+- Python例外なし。診断210件はすべて`info`で、`warning`／`error`なし
+- `Outer wall`が変化したのは水平穴4件のみで、-4.00〜-9.60mm（1.5〜3%）
+- `Bridge`は`matrix-octagon-blind-0`で-1.60mm、`Internal Bridge`は2件で±0.80mm
+
 ## 判定の考え方
 
 補強対象レイヤは**診断が記録した`reinforced_layers`から確定**します。G-codeの差分があるレイヤを対象とみなすと循環論法になるためです。診断に`model_object_name`がない場合はエラーとして扱います。`print_object_id`の出現順で対応付けると、スライスの並列実行や内部順序の変更で別のフィクスチャへ結果を割り当てる恐れがあるためです。
@@ -126,5 +151,7 @@ python3 tools/compare_slice_output.py \
 比較前に落とすのは2種類の行です。1つは実行ごとに変わるもので、生成日時、絶対パスを含むコメント、サムネイルのペイロードが該当します。もう1つはツールパスが変われば必ず変わる派生値で、`M73`（残時間）、フィラメント使用量、印刷時間見積りが該当します。
 
 `M73`は各レイヤへ残時間を書き込むため（実測で107行）、残すと補強と無関係なレイヤまで差分と判定され、判定が常に失敗します。派生値の増減は差分の有無ではなく、押出種別ごとの集計とレポートの「印刷サマリーの比較」で評価します。
+
+この正規化は机上で決めたものではなく、実測で偽陽性37件が出たことへの対処です。内訳は、同じ値の`;WIDTH:0.42`が再出力されたもの35件、ゼロ埋めのない生成日時1件、プラグイン設定のダンプ1件でした。
 
 レイヤごとの一致判定には行の実体ではなくダイジェストを使います。30オブジェクト規模（約8MB、30万行）の解析は約4.7秒、ピークメモリ約29MBです。

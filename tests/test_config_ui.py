@@ -18,6 +18,16 @@ class ConfigUiTests(unittest.TestCase):
             else:
                 self.assertIn(f'id="{key}"', html)
 
+    def test_shows_the_real_version_because_the_plugin_list_shows_a_fixed_one(self):
+        from orcaslicer_hole_reinforcement.version import __version__
+
+        for language in ("ja", "en"):
+            with self.subTest(language=language):
+                html = render_config_ui(language)
+
+                self.assertIn(f'<span class="version">{__version__}</span>', html)
+                self.assertNotRegex(html, r"__[A-Z_]+__")
+
     def test_ui_uses_orcaslicer_config_bridge(self):
         html = render_config_ui()
 

@@ -173,12 +173,18 @@ def find_stale_preset_overrides(
 
     overrideも`plugin_key`込みで保持されるため、更新すると参照されなくなる。
     プラグインAPIからは読み取りしかできず、書き戻して復元する手段が無い。
+
+    現在のキーのoverrideが同じプリセットにあれば、利用者は入力し直し済みで
+    失われる値が無いため何も返さない。ホストは古いエントリを削除しないため
+    （`prune_unreferenced()`は型と名前で判定する）、これを見ないと入力し直した
+    あとも警告が消えず、消す手段も無くなる。
     """
     entries = _parse_preset_option(raw)
     if not isinstance(entries, list):
         return ()
 
     stale = []
+    superseded = False
     for entry in entries:
         if not isinstance(entry, Mapping):
             continue
@@ -186,13 +192,16 @@ def find_stale_preset_overrides(
             continue
         if entry.get("capability_type") not in (HOST_CAPABILITY_TYPE, None, ""):
             continue
-        plugin_key = _text(entry.get("plugin_key"))
-        if plugin_key is None or plugin_key == own_plugin_key:
-            continue
         if not isinstance(entry.get("cap_config"), Mapping):
             continue
+        plugin_key = _text(entry.get("plugin_key"))
+        if plugin_key is None:
+            continue
+        if plugin_key == own_plugin_key:
+            superseded = True
+            continue
         stale.append(plugin_key)
-    return tuple(stale)
+    return () if superseded else tuple(stale)
 
 
 def _parse_preset_option(raw: object) -> object:

@@ -35,12 +35,13 @@ class ConfigValidationTests(unittest.TestCase):
             "axis_tolerance_deg": (0.0, 15.0),
         }
 
+        defaults = default_config()
         for key, (minimum, maximum) in boundaries.items():
             for value in (minimum, maximum):
                 supplied = {key: value}
-                if key == "min_hole_diameter_mm" and value > 10.0:
+                if key == "min_hole_diameter_mm" and value > defaults.max_hole_diameter_mm:
                     supplied["max_hole_diameter_mm"] = value
-                if key == "max_hole_diameter_mm" and value < 0.5:
+                if key == "max_hole_diameter_mm" and value < defaults.min_hole_diameter_mm:
                     supplied["min_hole_diameter_mm"] = value
                 with self.subTest(key=key, value=value):
                     self.assertTrue(parse_config(supplied).is_valid)

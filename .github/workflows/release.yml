@@ -1,0 +1,74 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+
+      # タグとversion.pyがズレたまま公開すると、配布物と告知の版が食い違う。
+      # 追えなくなる前にここで止める。
+      - name: Verify the tag matches the source
+        id: version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          version="${TAG#v}"
+          source_version="$(sed -n 's/^__version__ = "\(.*\)"$/\1/p' src/orcaslicer_hole_reinforcement/version.py)"
+          if [ "$version" != "$source_version" ]; then
+            echo "タグ($version)とversion.py($source_version)が一致しません" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Install dependencies
+        run: python -m pip install --require-hashes --no-deps -r requirements-ci.txt
+
+      - name: Run tests
+        run: PYTHONPATH=src python -m unittest discover -s tests
+
+      - name: Build wheel
+        id: wheel
+        run: |
+          uv build --wheel
+          major="$(sed -n 's/^__wheel_version__ = "\(.*\)"$/\1/p' src/orcaslicer_hole_reinforcement/version.py)"
+          path="dist/orcaslicer_hole_reinforcement-${major}-py3-none-any.whl"
+          test -f "$path" || {
+            echo "期待するwheelがありません: $path" >&2
+            ls -l dist >&2
+            exit 1
+          }
+          echo "path=$path" >> "$GITHUB_OUTPUT"
+
+      - name: Extract release notes
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: python tools/extract_changelog.py "$VERSION" > release-notes.md
+
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          WHEEL: ${{ steps.wheel.outputs.path }}
+        run: |
+          gh release create "$TAG" "$WHEEL" \
+            --title "$TAG" \
+            --notes-file release-notes.md \
+            --verify-tag

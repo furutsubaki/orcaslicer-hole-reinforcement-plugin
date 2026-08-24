@@ -443,16 +443,27 @@ class HoleReinforcementCapability(orca.slicing.SlicingPipelineCapabilityBase):
         引き継いだ設定で診断が無効だと、診断を有効化するために設定を保存した時点で
         引き継ぎが発火しなくなり、原因を追う手掛かりが残らないため。
         """
-        if self._diagnostic_sink_override is not None:
-            return SafeDiagnosticSink(self._diagnostic_sink_override)
-        return SafeDiagnosticSink(JsonLinesDiagnosticSink(self._diagnostic_path()))
+        return self._versioned_sink()
 
     def _diagnostics(self, config):
         if not config.diagnostics_enabled:
             return NullDiagnosticSink()
+        return self._versioned_sink()
+
+    def _versioned_sink(self):
+        """全レコードへ実バージョンを載せる。
+
+        wheelメタデータのバージョンは固定値で、ホストが`config.json`へ書く
+        `plugin_version`も固定値になる。実バージョンを実機で確認できる経路が
+        診断と実行結果メッセージしかないため。
+        """
         if self._diagnostic_sink_override is not None:
-            return SafeDiagnosticSink(self._diagnostic_sink_override)
-        return SafeDiagnosticSink(JsonLinesDiagnosticSink(self._diagnostic_path()))
+            target = self._diagnostic_sink_override
+        else:
+            target = JsonLinesDiagnosticSink(self._diagnostic_path())
+        return SafeDiagnosticSink(
+            ContextDiagnosticSink(target, {"plugin_version": __version__})
+        )
 
     def _diagnostic_path(self):
         return Path(__file__).resolve().with_name("diagnostic.jsonl")

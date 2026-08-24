@@ -369,6 +369,28 @@ class StalePresetOverrideTests(unittest.TestCase):
         own = "orcaslicer_hole_reinforcement-0.2.0-py3-none-any"
         self.assertEqual(self.find([self.override(own)]), ())
 
+    def test_stops_reporting_once_the_override_was_entered_again(self):
+        """ホストは古いエントリを消さないため、これを見ないと警告を消せなくなる。"""
+        own = "orcaslicer_hole_reinforcement-0.2.0-py3-none-any"
+        entries = [
+            self.override("orcaslicer_hole_reinforcement-0.1.0-py3-none-any"),
+            self.override(own),
+        ]
+
+        self.assertEqual(self.find(entries, own=own), ())
+
+    def test_still_reports_when_only_another_capability_was_entered_again(self):
+        own = "orcaslicer_hole_reinforcement-0.2.0-py3-none-any"
+        entries = [
+            self.override("orcaslicer_hole_reinforcement-0.1.0-py3-none-any"),
+            self.override(own, capability="Other Capability"),
+        ]
+
+        self.assertEqual(
+            self.find(entries, own=own),
+            ("orcaslicer_hole_reinforcement-0.1.0-py3-none-any",),
+        )
+
     def test_ignores_another_capability(self):
         entry = self.override("other", capability="Hole Reinforcement Detector PoC")
         self.assertEqual(self.find([entry]), ())

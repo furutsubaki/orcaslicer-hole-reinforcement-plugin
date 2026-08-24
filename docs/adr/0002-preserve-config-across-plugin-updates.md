@@ -51,6 +51,8 @@ ADR 0001の対応コミット`f5f3d2221dd929360407aa2ae6759302a8d2c575`で、ホ
 
 **本体側の改善**: OrcaSlicerが`plugin_key`ではなくプラグイン名で設定を保持するよう提案する。`.install_state.json`はバージョンを含まない`plugin_name`を持つため、キーの候補は存在する。ただし本体の変更を待つことになり、本プラグイン側で完結しない。将来提案する場合も、本ADRの引き継ぎは互換のために残す。
 
+> **追記（ADR 0003）**: この選択肢が目指した「`plugin_key`を不変にする」状態は、本体を変更せずに実現できると判明した。`plugin_key`はインストール元wheelのファイル名だけで決まるため、wheelメタデータのバージョンを固定すればキーは動かない。[`0003-fix-wheel-version-for-stable-plugin-key.md`](0003-fix-wheel-version-for-stable-plugin-key.md)を参照。本ADRの引き継ぎは撤回せず、固定化前のバージョンから更新する利用者のために残す。
+
 ## 制約
 
 - 引き継げるのはプラグイン設定画面で保存した値だけである。プリセットoverride（`print_plugin_config_overrides`ほか、`Preset::plugin_overrides_key()`）も`plugin_key`込みで保持され、更新すると`CapabilityConfigDocument::find()`が一致しなくなって参照されない。`prune_unreferenced()`は`(型, 名前)`で判定するため刈り取られず、プリセットに残り続ける

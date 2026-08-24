@@ -1,4 +1,4 @@
-"""プラグインON/OFFのG-codeと診断ログを突き合わせ、issue15の検証レポートを生成する。"""
+"""プラグインON/OFFのG-codeと診断ログを突き合わせ、実機検証レポートを生成する。"""
 
 import argparse
 import hashlib
@@ -9,6 +9,10 @@ import sys
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from orcaslicer_hole_reinforcement.version import __version__
 
 
 DIAGNOSTIC_MAX_BYTES = 5 * 1024 * 1024
@@ -782,7 +786,7 @@ def main():
     parser.add_argument(
         "--supported-commit", default="f5f3d2221dd929360407aa2ae6759302a8d2c575"
     )
-    parser.add_argument("--plugin-version", default="0.1.0")
+    parser.add_argument("--plugin-version", default=__version__)
     args = parser.parse_args()
 
     try:

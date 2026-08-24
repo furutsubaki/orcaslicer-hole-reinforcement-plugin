@@ -28,6 +28,14 @@ def _section_extent(vertices, triangles, height):
     return max(xs) - min(xs), max(ys) - min(ys)
 
 
+def _is_number(word: str) -> bool:
+    try:
+        float(word)
+    except ValueError:
+        return False
+    return True
+
+
 class FixtureSuiteTests(unittest.TestCase):
     def test_matrix_fixtures_leave_room_for_infill_around_the_hole(self):
         minimum_margin_mm = 8.0
@@ -138,7 +146,17 @@ class FixtureSuiteTests(unittest.TestCase):
             },
         )
 
-    def test_generation_matches_committed_fixtures_byte_for_byte(self):
+    def test_generation_reproduces_the_committed_fixtures(self):
+        """committed fixtureが生成器の出力と一致することを確かめる。
+
+        バイト単位では比較できない。座標は三角関数から求めるため最終桁がlibmと
+        Pythonのバージョンで変わり、生成した本人の環境でしか一致しない。桁を
+        落として吸収する案も採れず、検出の許容差1e-9を下回る量子で丸める必要が
+        ある一方で環境差が1e-15あり、丸め境界をまたぐ値が確率的に生じる。
+
+        そこで構造は完全一致、数値は相対1e-12で比較する。手による編集や生成器
+        の変更は、この精度で十分に検出できる。
+        """
         with tempfile.TemporaryDirectory() as directory:
             generated = Path(directory)
             generate(generated)
@@ -148,10 +166,36 @@ class FixtureSuiteTests(unittest.TestCase):
             self.assertEqual(actual_files, expected_files)
             for name in expected_files:
                 with self.subTest(name=name):
-                    self.assertEqual(
-                        (generated / name).read_bytes(),
-                        (DEFAULT_OUTPUT / name).read_bytes(),
-                    )
+                    if name.endswith(".json"):
+                        self.assertEqual(
+                            (generated / name).read_bytes(),
+                            (DEFAULT_OUTPUT / name).read_bytes(),
+                        )
+                        continue
+                    self._assert_stl_matches(generated / name, DEFAULT_OUTPUT / name)
+
+    def _assert_stl_matches(self, actual: Path, expected: Path):
+        actual_lines = actual.read_text(encoding="utf-8").splitlines()
+        expected_lines = expected.read_text(encoding="utf-8").splitlines()
+
+        self.assertEqual(len(actual_lines), len(expected_lines))
+        for index, (left, right) in enumerate(zip(actual_lines, expected_lines), 1):
+            actual_words = left.split()
+            expected_words = right.split()
+            self.assertEqual(
+                [word for word in actual_words if not _is_number(word)],
+                [word for word in expected_words if not _is_number(word)],
+                msg=f"{expected.name}:{index} の構造が異なります",
+            )
+            for actual_word, expected_word in zip(actual_words, expected_words):
+                if not _is_number(expected_word):
+                    continue
+                self.assertAlmostEqual(
+                    float(actual_word),
+                    float(expected_word),
+                    delta=max(abs(float(expected_word)), 1.0) * 1e-12,
+                    msg=f"{expected.name}:{index}",
+                )
 
     def test_all_committed_fixtures_match_expected_detection(self):
         self.assertEqual(verify(DEFAULT_OUTPUT), [])

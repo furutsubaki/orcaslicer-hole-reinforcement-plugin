@@ -4,6 +4,7 @@ import json
 from html import escape
 
 from .config import default_config_dict
+from .version import __version__
 
 
 def render_config_ui(
@@ -28,6 +29,7 @@ def render_config_ui(
         .replace("__VALIDATION_TEXTS__", validation_texts)
     )
     html = html.replace("__LANG__", locale)
+    html = html.replace("__VERSION__", escape(__version__))
     html = html.replace("__STALE_OVERRIDE__", escape(stale_notice))
     html = html.replace("__STALE_HIDDEN__", "" if stale_keys else " hidden")
     html = html.replace("__STALE_KEYS__", escape("/ ".join(stale_keys)))
@@ -45,12 +47,19 @@ _TRANSLATIONS = {
         "ui": {
             "title": "Hole reinforcement settings",
             "intro": "Configure which holes to detect and how their surroundings are solidified.",
+            "version_note": (
+                "The plugin list shows this plugin as version 1. That number comes from the "
+                "wheel filename, which is deliberately fixed so that updating the plugin keeps "
+                "your settings and preset references intact. The version shown above is the "
+                "actual one."
+            ),
             "format_label": "Configuration format:",
             "format_help": "v2 (managed automatically by the plugin for compatibility checks)",
             "stale_override": (
                 "This preset still holds settings saved for an older version of this plugin. "
                 "OrcaSlicer keys preset overrides by plugin version, and the plugin cannot restore "
-                "them. Set the values again here, or in the preset's plugin settings."
+                "them. Re-enter them in the preset's plugin settings, not on this screen — "
+                "this screen saves to a different place and will not clear this notice."
             ),
             "dimensions": "Target dimensions",
             "min_diameter": "Minimum hole diameter",
@@ -109,12 +118,18 @@ _TRANSLATIONS = {
         "ui": {
             "title": "穴補強設定",
             "intro": "対象にする穴と、穴周辺をソリッド化する条件を設定します。",
+            "version_note": (
+                "プラグイン一覧にはバージョン1と表示されます。これはwheelのファイル名に由来する"
+                "固定値で、更新しても設定とプリセットの参照が保たれるよう意図的に固定しています。"
+                "実際のバージョンは上の表示のとおりです。"
+            ),
             "format_label": "設定形式:",
             "format_help": "v2（互換性判定のためプラグインが自動管理します）",
             "stale_override": (
                 "このプリセットに、旧バージョン向けに保存された設定が残っています。"
                 "OrcaSlicerはプリセット側の設定をプラグインのバージョンごとに保持するため、"
-                "プラグインからは復元できません。この画面かプリセットの設定で入力し直してください。"
+                "プラグインからは復元できません。プリセットの設定で入力し直してください。"
+                "この画面は保存先が別のため、ここで直してもこの警告は消えません。"
             ),
             "dimensions": "対象寸法",
             "min_diameter": "最小穴径",
@@ -184,6 +199,7 @@ _HTML = r"""
   body { margin: 0; padding: 18px; }
   form { max-width: 920px; margin: 0 auto; }
   h1 { margin: 0 0 6px; font-size: 20px; }
+  h1 .version { font-size: 13px; font-weight: normal; color: var(--orca-muted, #666); }
   .intro, .help { color: var(--orca-muted, #666); }
   .intro { margin: 0 0 18px; font-size: 13px; }
   fieldset {
@@ -258,8 +274,9 @@ _HTML = r"""
 </style>
 
 <form id="config-form" novalidate lang="__LANG__">
-  <h1>__TITLE__</h1>
+  <h1>__TITLE__ <span class="version">__VERSION__</span></h1>
   <p class="intro">__INTRO__</p>
+  <p class="intro">__VERSION_NOTE__</p>
   <p class="intro"><strong>__FORMAT_LABEL__</strong> __FORMAT_HELP__</p>
   <p id="stale-override" class="notice" role="status"__STALE_HIDDEN__>__STALE_OVERRIDE__<br><code>__STALE_KEYS__</code></p>
   <div id="errors" class="error" role="alert" aria-live="assertive" hidden></div>

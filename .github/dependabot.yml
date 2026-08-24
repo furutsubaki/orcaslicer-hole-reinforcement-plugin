@@ -1,0 +1,25 @@
+# 依存更新の設定。
+# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+version: 2
+updates:
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+
+  # 実行時依存はnumpyのみ。CIはrequirements-ci.txtをハッシュ固定で入れるため、
+  # 更新はこのファイルとpyproject.tomlの両方が対象になる。
+  - package-ecosystem: 'pip'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 1
+    groups:
+      pip-minor-patch:
+        update-types:
+          - 'minor'
+          - 'patch'
+    # 公開直後のバージョンを避け、取り下げや緊急修正が出そろうのを待つ。
+    cooldown:
+      default-days: 7

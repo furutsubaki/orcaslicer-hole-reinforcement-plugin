@@ -69,12 +69,12 @@ def cases() -> tuple[FixtureCase, ...]:
         for angle in (0.1, 89.9)
     ]
     dimension_boundaries = [
-        FixtureCase("diameter-below-min", "circle", 90.0, 0.49, 12.0, "open", "open", "not_detected"),
-        FixtureCase("diameter-at-min", "circle", 90.0, 0.5, 12.0, "open", "open"),
+        FixtureCase("diameter-below-min", "circle", 90.0, 2.99, 12.0, "open", "open", "not_detected"),
+        FixtureCase("diameter-at-min", "circle", 90.0, 3.0, 12.0, "open", "open"),
         FixtureCase("diameter-at-max", "circle", 90.0, 10.0, 12.0, "open", "open"),
         FixtureCase("diameter-above-max", "circle", 90.0, 10.01, 12.0, "open", "open", "not_detected"),
-        FixtureCase("depth-below-min", "circle", 90.0, 4.0, 0.99, "open", "open", "not_detected"),
-        FixtureCase("depth-at-min", "circle", 90.0, 4.0, 1.0, "open", "open"),
+        FixtureCase("depth-below-min", "circle", 90.0, 4.0, 1.99, "open", "open", "not_detected"),
+        FixtureCase("depth-at-min", "circle", 90.0, 4.0, 2.0, "open", "open"),
     ]
     circle_scales = tuple(1.05 if index % 2 else 1.0 for index in range(96))
     circle_residual = 0.05060966544098777

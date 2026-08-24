@@ -80,6 +80,23 @@ class SlicingDiagnosticsTests(unittest.TestCase):
 
         self.assertTrue(capability.base_initialized)
 
+    def test_every_diagnostic_record_carries_the_real_plugin_version(self):
+        from orcaslicer_hole_reinforcement.version import __version__
+
+        module = load_module()
+        capability = module.HoleReinforcementCapability()
+        diagnostics = MemoryDiagnosticSink()
+        capability._diagnostic_sink_override = diagnostics
+
+        sink = capability._diagnostics(HoleReinforcementConfig())
+        sink.emit(
+            module.DiagnosticEvent(
+                module.DiagnosticLevel.INFO, "probe", "probe", {}
+            )
+        )
+
+        self.assertEqual(diagnostics.events[0].details["plugin_version"], __version__)
+
     def test_detection_events_identify_model_and_each_volume(self):
         module = load_module()
         capability = module.HoleReinforcementCapability()

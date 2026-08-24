@@ -9,7 +9,7 @@
 
 ### Issue tracker
 
-正式公開までは`.scratch/`のローカルMarkdownで管理し、公開後はGitHub Issuesへ移行します。詳細は`docs/agents/issue-tracker.md`を参照してください。
+GitHub Issuesで管理します。詳細は`docs/agents/issue-tracker.md`を参照してください。
 
 ### Triage labels
 
@@ -17,7 +17,7 @@
 
 ### Domain docs
 
-単一コンテキスト構成として、`CONTEXT.md`と`docs/adr/`を使用します。詳細は`docs/agents/domain.md`を参照してください。
+設計判断は`docs/adr/`のADRへ記録します。仕様と契約は`docs/`配下の各文書が正であり、`README.md`の「開発者向け」節が入口です。
 
 ## 禁止事項
 

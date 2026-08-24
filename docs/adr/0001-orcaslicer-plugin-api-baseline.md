@@ -27,6 +27,7 @@
 | --- | --- |
 | 検出タイミング | `Step.posSlice`で3D穴候補を検出する |
 | 補強タイミング | `Step.posPrepareInfill`で内部Surfaceを分割、ソリッド化する。このステップは`prepare_infill`後、`make_fills`前であり、変更が後続のfill生成へ反映される |
+| 分割対象 | `stInternal`のSurfaceだけを残余領域と`stInternalSolid`へ分割する。既にソリッド化されている面やブリッジ面へは触れない |
 | 実行スレッド | `execute(ctx)`はスライスワーカースレッドで実行される。デッドロックを避けるため`orca.host.ui.*`を呼ばない |
 | キャンセル | 長いオブジェクト、ボリューム、三角形、レイヤーの反復中に`ctx.cancelled()`を確認し、要求後は速やかに処理を打ち切る |
 | 参照寿命 | `ctx.print`、`ctx.object`、そこから得たスライスグラフの参照とNumPy viewは、その`execute(ctx)`呼び出し中だけ有効とする |
@@ -49,7 +50,8 @@
 | データ | I/F | 契約 |
 | --- | --- | --- |
 | モデルオブジェクト | `ctx.object.model_object()` | Print所有のワーカースレッド安定スナップショットへの非所有参照 |
-| ボリューム | `ModelObject.volume(index)` | モデルオブジェクト内部の非所有参照。`volume_count()`で範囲を決める |
+| モデル名 | `ModelObject.name` | **メソッドではなく属性として保持されている**。`name()`では取得できない |
+| ボリューム | `ModelObject.volume(index)` | モデルオブジェクト内部の非所有参照。`volume_count()`で範囲を決める。modifierおよびsupport系volumeは本プラグインの対象外 |
 | メッシュ | `ModelVolume.mesh()` | ローカル座標、mm単位のimmutableな`TriangleMesh`スナップショット |
 | 頂点 | `TriangleMesh.vertices()` | 読み取り専用、zero-copyの`float32[N,3]`NumPy view |
 | 三角形 | `TriangleMesh.triangles()` | 読み取り専用、zero-copyの`int32[M,3]`NumPy view |
@@ -79,7 +81,8 @@
 | `get_config_version()` | 保存時のプラグインバージョンを取得し、設定移行の要否を判断する |
 | `save_config(json.dumps(config))` | capability自身のグローバル設定を保存する。JSON不正または書き込み失敗時は`False`を返し、既存値を維持する |
 | `get_default_config()` | 「既定値に戻す」で保存するobjectを返す。ホストはプラグイン固有の型、範囲、相関を検証しない |
-| `window.orca.getConfig()` / `saveConfig()` | 独自HTMLとPluginsダイアログ間で同じ設定を読み書きするbridge |
+| `window.orca.getConfig()` / `saveConfig()` | 独自HTMLとPluginsダイアログ間で同じ設定を読み書きするbridge。未保存の変更を親ダイアログのclose時に確認するI/Fは存在しない |
+| `orca.host.app_language()` | 本体の表示言語を取得する。未対応言語または取得失敗時は英語へフォールバックする |
 | `orca.host.preset_bundle()` | プリセットを読み取る。`config_keys()`と`config_value(key)`のみで書き込めない。`config_value()`は`opt_serialize()`経由のため、文字列値は`escape_string_cstyle()`でエスケープされて返る |
 
 設定はcapabilityの`plugin_key`、種別、名前、プラグインバージョンと共にOrcaSlicerのplugin設定へ保存される。ホストは`plugin_loader::load()`の直後、当該`plugin_key`のエントリが無いときだけ`get_default_config()`を初期投入する（`PluginManager.cpp`）。プリセット側にcapability overrideがある場合、`get_config()`はoverrideを優先した有効値を返す。UIと実行処理は必ず同じ`get_config()`を起点にし、プラグイン側でスキーマ検証してから使用する。

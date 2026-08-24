@@ -13,6 +13,10 @@
 
 ## 対応範囲
 
+### 対象ボリューム
+
+モデルパートと負のボリュームを対象とする。modifierおよびsupport系volumeは対象外とし、メッシュをコピーする前に除外する。これらは造形される実体ではないため、そこに開いた穴を補強しても意味を持たない。
+
 ### 断面形状
 
 | 形状 | 成立条件 | 寸法 |
@@ -96,11 +100,11 @@
 
 実機確認では、プラグイン有効／無効の比較、診断出力、スライスプレビュー、Python例外、警告、スライス成否を記録する。ブリッジまたはサポートが生成されない姿勢では「該当なし」と記録し、失敗と混同しない。
 
-## 後続issueへのI/F
+## 実装との対応
 
 - [`configuration.md`](configuration.md)は、本書の`Dmin`、`Dmax`、`Lmin`、`Tc`、`Te`、`Ta`に対応する型、既定値、有効範囲を定義する。
-- issue 07〜09は、対応範囲と除外条件を検出結果および除外理由へ反映する。
-- issue 10は、穴軸に直交する断面を補強幅だけ3D方向へ拡張した柱体をレイヤー平面で切断する。OrcaSlicerがpolyhole変換した場合は、変換後のレイヤー輪郭を内側境界として使用し、そのオフセットを3D断面へ合成して角部の補強幅を確保する。
-- issue 11は、issue 10の2D幾何I/FをOrcaSlicerへ接続し、各ケースの補強、ブリッジ、サポートの不変条件を満たす。
-- issue 14は、表のケースID、入力形状、期待属性を機械可読データとして生成する。
-- issue 15は、対応Nightly版と固定したスライス設定で実機確認結果を記録する。
+- [`detection-algorithm.md`](detection-algorithm.md)は、本書の対応範囲と除外条件をどの手順で判定するかを記述する。除外理由は診断の理由コードへ反映する。
+- `reinforcement.py`は、穴軸に直交する断面を補強幅だけ3D方向へ拡張した柱体をレイヤー平面で切断する。OrcaSlicerがpolyhole変換した場合は、変換後のレイヤー輪郭を内側境界として使用し、そのオフセットを3D断面へ合成して角部の補強幅を確保する。
+- `solid_reinforcement.py`は、その2D幾何I/FをOrcaSlicerへ接続し、各ケースの補強、ブリッジ、サポートの不変条件を満たす。
+- `tools/fixture_suite.py`は、表のケースID、入力形状、期待属性を機械可読データとして生成する。[`test-fixtures.md`](test-fixtures.md)を参照。
+- [`orcaslicer-integration-verification.md`](orcaslicer-integration-verification.md)は、対応Nightly版と固定したスライス設定での実機確認結果を記録する。

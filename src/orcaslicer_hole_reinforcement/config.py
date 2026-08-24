@@ -15,10 +15,10 @@ SUPPORTED_END_KINDS = ("through", "blind")
 @dataclass(frozen=True, slots=True)
 class HoleReinforcementConfig:
     schema_version: int = CURRENT_SCHEMA_VERSION
-    min_hole_diameter_mm: float = 0.5
+    min_hole_diameter_mm: float = 3.0
     max_hole_diameter_mm: float = 10.0
-    reinforcement_width_mm: float = 2.0
-    min_hole_depth_mm: float = 1.0
+    reinforcement_width_mm: float = 3.0
+    min_hole_depth_mm: float = 2.0
     enabled_shapes: tuple[str, ...] = SUPPORTED_SHAPES
     enabled_end_kinds: tuple[str, ...] = SUPPORTED_END_KINDS
     circle_radial_tolerance_mm: float = 0.1

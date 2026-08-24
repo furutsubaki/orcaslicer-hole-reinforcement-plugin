@@ -1,6 +1,9 @@
+import re
 import sys
 import types
 import unittest
+
+SEMVER = re.compile(r"^\d+\.\d+\.\d+$")
 
 
 class PackageBoundaryTests(unittest.TestCase):
@@ -9,7 +12,7 @@ class PackageBoundaryTests(unittest.TestCase):
 
         import orcaslicer_hole_reinforcement
 
-        self.assertEqual(orcaslicer_hole_reinforcement.__version__, "0.1.0")
+        self.assertRegex(orcaslicer_hole_reinforcement.__version__, SEMVER)
 
     def test_pure_interfaces_can_be_used_without_orcaslicer(self):
         from orcaslicer_hole_reinforcement.detection import (
@@ -110,7 +113,7 @@ class PackageBoundaryTests(unittest.TestCase):
 
             self.assertEqual(len(registered), 1)
             self.assertTrue(issubclass(registered[0], SlicingBase))
-            self.assertEqual(orcaslicer_hole_reinforcement.__version__, "0.1.0")
+            self.assertRegex(orcaslicer_hole_reinforcement.__version__, SEMVER)
 
             from orcaslicer_hole_reinforcement.diagnostics import (
                 MemoryDiagnosticSink,

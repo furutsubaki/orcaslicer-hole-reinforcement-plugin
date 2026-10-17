@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+OrcaSlicer `v2.5.0-alpha` / Build `3880f2c5`で実機検証しました。
+
+### 変更
+
+- 対応基準をOrcaSlicer `v2.5.0-alpha`（コミット`3880f2c`）へ引き上げ
+
+### 修正
+
+- OrcaSlicer `v2.5.0-alpha`で、本体を日本語表示にしていても設定画面が英語になる問題を修正。本体の表示言語を取得するAPIが`app_info()`へ移ったため
+
 ## [1.0.0] - 2026-08-24
 
 初回公開。OrcaSlicer Nightly `2.5.0-dev` / Build `872c660c`で実機検証しました。

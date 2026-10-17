@@ -2,7 +2,7 @@
 
 モデルに空いた小さな穴を自動で見つけて、その周囲の内部インフィルをソリッド化するOrcaSlicerプラグインです。ネジ穴やピン穴のように力が掛かる穴の周りだけを密にできるため、造形物全体のインフィル密度を上げずに強度を稼げます。
 
-OrcaSlicer本体はフォークも改変もしません。Nightly版のPythonプラグインAPIを使い、通常のプラグインとしてインストールします。
+OrcaSlicer本体はフォークも改変もしません。OrcaSlicer `v2.5.0-alpha`のPythonプラグインAPIを使い、通常のプラグインとしてインストールします。
 
 ## 対応範囲
 
@@ -10,12 +10,12 @@ OrcaSlicer本体はフォークも改変もしません。Nightly版のPythonプ
 
 | 項目 | 値 |
 | --- | --- |
-| API基準コミット | [`f5f3d2221dd929360407aa2ae6759302a8d2c575`](https://github.com/OrcaSlicer/OrcaSlicer/commit/f5f3d2221dd929360407aa2ae6759302a8d2c575) |
-| 実機検証ビルド | Nightly `2.5.0-dev` / Build `872c660c` |
+| API基準コミット | [`3880f2c58ec392ed2bd5938ab31c9c7c496c0eb2`](https://github.com/OrcaSlicer/OrcaSlicer/commit/3880f2c58ec392ed2bd5938ab31c9c7c496c0eb2) |
+| 実機検証ビルド | `v2.5.0-alpha` / Build `3880f2c5` |
 
-安定版と、上記以外のNightlyは未対応です。プラグインAPIは実験的で互換性が保証されていないため、同じI/Fが存在しても検証が済むまで対応と扱いません。判定基準は[`docs/adr/0001-orcaslicer-plugin-api-baseline.md`](docs/adr/0001-orcaslicer-plugin-api-baseline.md)にあります。
+安定版（`2.4.x`以前）と、上記以外のプレリリース・Nightlyは未対応です。プラグインAPIは実験的で互換性が保証されていないため、同じI/Fが存在しても検証が済むまで対応と扱いません。判定基準は[`docs/adr/0001-orcaslicer-plugin-api-baseline.md`](docs/adr/0001-orcaslicer-plugin-api-baseline.md)にあります。
 
-コミットとビルドを両方載せているのは、**この2つが別体系で、片方だけでは再現できない**ためです。API基準コミットはプラグインI/Fの契約が変わっていないかを判定するためのソース上の基準点、実機検証ビルドは実際に動作を確認したバイナリです。Nightlyビルドは特定のコミットへ一対一で対応しないため、両方を突き合わせる必要があります。
+コミットとビルドを両方載せているのは、**この2つが別体系で、片方だけでは再現できない**ためです。API基準コミットはプラグインI/Fの契約が変わっていないかを判定するためのソース上の基準点、実機検証ビルドは実際に動作を確認したバイナリです。Nightlyビルドは特定のコミットへ一対一で対応しないため、両方を突き合わせる必要があります。タグ付きのプレリリースは両者が一致します。
 
 **OrcaSlicerのCLI（`--slice`）ではプラグインが読み込まれません。** 補強を効かせるにはGUIでスライスしてください。
 
@@ -42,7 +42,7 @@ OrcaSlicer本体はフォークも改変もしません。Nightly版のPythonプ
 ## インストール
 
 1. wheelを用意します。リリースページから入手するか、[開発者向け](#開発者向け)の手順でビルドします
-2. OrcaSlicer Nightlyを起動し、「プラグイン」画面を開きます
+2. OrcaSlicer `v2.5.0-alpha`を起動し、「プラグイン」画面を開きます
 3. ローカルプラグインのインストールを選び、`orcaslicer_hole_reinforcement-1-py3-none-any.whl`を指定します
 4. OrcaSlicerを再起動します
 

@@ -100,9 +100,14 @@ class HoleReinforcementCapability(orca.slicing.SlicingPipelineCapabilityBase):
             return False
 
     def get_config_ui(self):
+        # v2.5.0-alphaでapp_language()が削除され、app_info()へ移った。旧Nightlyでも日本語を保つため両方を見る。
         try:
-            language = orca.host.app_language()
-        except (AttributeError, RuntimeError):
+            host = orca.host
+            if hasattr(host, "app_info"):
+                language = host.app_info()["language"]
+            else:
+                language = host.app_language()
+        except (AttributeError, KeyError, RuntimeError, TypeError):
             language = ""
         initial = None
         if host_config_is_empty(self._host_config()):

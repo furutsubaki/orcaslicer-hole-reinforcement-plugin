@@ -668,6 +668,23 @@ class ConfigMigrationCapabilityTests(unittest.TestCase):
         self.assertIn('id="stale-override"', html)
         self.assertIn("role=\"status\" hidden>", html)
 
+    def test_config_ui_reads_language_from_app_info(self):
+        host = sys.modules["orca"].host
+        del host.app_language
+        host.app_info = lambda: {"language": "ja_JP"}
+        html = self.build_capability(json.dumps(self.stored_config())).get_config_ui()
+
+        self.assertIn('lang="ja"', html)
+
+    def test_config_ui_falls_back_to_english_when_app_info_fails(self):
+        def raising():
+            raise RuntimeError("app_info() must be called from the UI thread")
+
+        sys.modules["orca"].host.app_info = raising
+        html = self.build_capability(json.dumps(self.stored_config())).get_config_ui()
+
+        self.assertIn('lang="en"', html)
+
     def test_config_ui_survives_a_host_without_presets(self):
         def raising():
             raise RuntimeError("preset bundle is not available")

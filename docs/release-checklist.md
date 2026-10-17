@@ -45,7 +45,7 @@ PRを出せば[`check`ワークフロー](../.github/workflows/pr-check.yml)が�
 - [ ] `python3 tools/check_doc_links.py`が通る（README・docsの相対リンクが実在する）
 - [ ] `uv build --wheel`が成功し、`dist/orcaslicer_hole_reinforcement-<メジャー>-py3-none-any.whl`が生成される
 - [ ] 既定値を変更した場合、`tools/fixture_suite.py`の寸法境界を追随させ、`PYTHONPATH=src python3 tools/fixture_suite.py`でフィクスチャを再生成する
-- [ ] 実機スモーク: OrcaSlicer Nightlyへ新しいwheelをインストールし、フィクスチャ1件をGUIでスライスして、検出結果の表示と`diagnostic.jsonl`の出力を確認する。**`diagnostic.jsonl`の`plugin_version`が今回のバージョンであることを必ず確認する**（インストールが反映されていないまま検証すると偽の合格を出す）
+- [ ] 実機スモーク: 対応ビルドのOrcaSlicer（README「対応範囲」）へ新しいwheelをインストールし、フィクスチャ1件をGUIでスライスして、検出結果の表示と`diagnostic.jsonl`の出力を確認する。**`diagnostic.jsonl`の`plugin_version`が今回のバージョンであることを必ず確認する**（インストールが反映されていないまま検証すると偽の合格を出す）
 - [ ] OrcaSlicerのAPI基準コミットを変更した場合は、[`docs/adr/0001-orcaslicer-plugin-api-baseline.md`](adr/0001-orcaslicer-plugin-api-baseline.md)の互換性判定手順を実施し、結果をADRへ追記する
 - [ ] 対応範囲（OrcaSlicerのビルド、OS、穴形状・方向・穴端）に変更があれば`README.md`の対応範囲表を更新する
 

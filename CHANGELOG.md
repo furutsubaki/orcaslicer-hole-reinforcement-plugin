@@ -4,6 +4,20 @@
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-10-18
+
+OrcaSlicer `v2.5.0-alpha` / Build `3880f2c5`、macOS 26.6.1（Apple Silicon）で実機検証しました。
+
+`1.0.0`からは新しいwheelをインストールするだけで更新できます。ファイル名は`orcaslicer_hole_reinforcement-1-py3-none-any.whl`のままで、設定とプリセットの参照は引き継がれます。
+
+### 変更
+
+- 対応基準をOrcaSlicer `v2.5.0-alpha`（コミット`3880f2c`）へ引き上げ
+
+### 修正
+
+- OrcaSlicer `v2.5.0-alpha`で、本体を日本語表示にしていても設定画面が英語になる問題を修正。本体の表示言語を取得するAPIが`app_info()`へ移ったため
+
 ## [1.0.0] - 2026-08-24
 
 初回公開。OrcaSlicer Nightly `2.5.0-dev` / Build `872c660c`で実機検証しました。
@@ -47,5 +61,6 @@
 
 - PoC実装（`hole_reinforcement_detector_poc.py`）と、その専用ツール（`tools/generate_test_model.py`、`tools/run_detector_harness.py`）。正式版へ統合済みのため
 
-[Unreleased]: https://github.com/furutsubaki/orcaslicer-hole-reinforcement-plugin/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/furutsubaki/orcaslicer-hole-reinforcement-plugin/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/furutsubaki/orcaslicer-hole-reinforcement-plugin/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/furutsubaki/orcaslicer-hole-reinforcement-plugin/releases/tag/v1.0.0

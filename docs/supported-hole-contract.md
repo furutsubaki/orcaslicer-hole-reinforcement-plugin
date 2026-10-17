@@ -107,4 +107,4 @@
 - `reinforcement.py`は、穴軸に直交する断面を補強幅だけ3D方向へ拡張した柱体をレイヤー平面で切断する。OrcaSlicerがpolyhole変換した場合は、変換後のレイヤー輪郭を内側境界として使用し、そのオフセットを3D断面へ合成して角部の補強幅を確保する。
 - `solid_reinforcement.py`は、その2D幾何I/FをOrcaSlicerへ接続し、各ケースの補強、ブリッジ、サポートの不変条件を満たす。
 - `tools/fixture_suite.py`は、表のケースID、入力形状、期待属性を機械可読データとして生成する。[`test-fixtures.md`](test-fixtures.md)を参照。
-- [`orcaslicer-integration-verification.md`](orcaslicer-integration-verification.md)は、対応Nightly版と固定したスライス設定での実機確認結果を記録する。
+- [`orcaslicer-integration-verification.md`](orcaslicer-integration-verification.md)は、対応ビルドと固定したスライス設定での実機確認結果を記録する。

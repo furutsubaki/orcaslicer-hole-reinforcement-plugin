@@ -781,10 +781,10 @@ def main():
         default="GUI-OFF（solid_reinforcement無効）",
         help="OFF側G-codeの取得方法。CLIベースラインを使う場合は明示する",
     )
-    parser.add_argument("--orcaslicer-version", default="2.5.0-dev")
-    parser.add_argument("--orcaslicer-build", default="872c660c")
+    parser.add_argument("--orcaslicer-version", default="2.5.0-alpha")
+    parser.add_argument("--orcaslicer-build", default="3880f2c5")
     parser.add_argument(
-        "--supported-commit", default="f5f3d2221dd929360407aa2ae6759302a8d2c575"
+        "--supported-commit", default="3880f2c58ec392ed2bd5938ab31c9c7c496c0eb2"
     )
     parser.add_argument("--plugin-version", default=__version__)
     args = parser.parse_args()

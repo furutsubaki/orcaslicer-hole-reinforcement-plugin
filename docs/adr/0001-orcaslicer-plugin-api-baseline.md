@@ -12,11 +12,12 @@
 
 ### 対応基準
 
-初期の対応保証対象をOrcaSlicerコミット[`f5f3d2221dd929360407aa2ae6759302a8d2c575`](https://github.com/OrcaSlicer/OrcaSlicer/commit/f5f3d2221dd929360407aa2ae6759302a8d2c575)に固定する。
+対応保証対象をOrcaSlicer `v2.5.0-alpha`のコミット[`3880f2c58ec392ed2bd5938ab31c9c7c496c0eb2`](https://github.com/OrcaSlicer/OrcaSlicer/commit/3880f2c58ec392ed2bd5938ab31c9c7c496c0eb2)に固定する。
 
-- 短縮SHA:`f5f3d22`
-- コミット日時:`2026-08-19T17:47:34Z`
+- 短縮SHA:`3880f2c`
+- コミット日時:`2026-10-16T10:52:11Z`
 - これより前後のコミット、Nightly配布物、安定版は、同じI/Fが存在しても検証完了までは未対応とする。
+- 初期の基準は[`f5f3d22`](https://github.com/OrcaSlicer/OrcaSlicer/commit/f5f3d2221dd929360407aa2ae6759302a8d2c575)だった。引き上げの経緯は「互換性記録」に残す。
 - 配布文書にはOrcaSlicerのバージョン名だけでなく、完全なコミットSHAを記載する。
 
 ### スライスパイプライン
@@ -39,9 +40,9 @@
 
 参照:
 
-- [`SlicingPipelinePluginCapability.hpp`](https://github.com/OrcaSlicer/OrcaSlicer/blob/f5f3d2221dd929360407aa2ae6759302a8d2c575/src/slic3r/plugin/pluginTypes/slicingPipeline/SlicingPipelinePluginCapability.hpp)
-- [`SlicingPipelinePluginCapability.cpp`](https://github.com/OrcaSlicer/OrcaSlicer/blob/f5f3d2221dd929360407aa2ae6759302a8d2c575/src/slic3r/plugin/pluginTypes/slicingPipeline/SlicingPipelinePluginCapability.cpp)
-- [`PluginHostSlicing.cpp`](https://github.com/OrcaSlicer/OrcaSlicer/blob/f5f3d2221dd929360407aa2ae6759302a8d2c575/src/slic3r/plugin/host/PluginHostSlicing.cpp)
+- [`SlicingPipelinePluginCapability.hpp`](https://github.com/OrcaSlicer/OrcaSlicer/blob/3880f2c58ec392ed2bd5938ab31c9c7c496c0eb2/src/slic3r/plugin/pluginTypes/slicingPipeline/SlicingPipelinePluginCapability.hpp)
+- [`SlicingPipelinePluginCapability.cpp`](https://github.com/OrcaSlicer/OrcaSlicer/blob/3880f2c58ec392ed2bd5938ab31c9c7c496c0eb2/src/slic3r/plugin/pluginTypes/slicingPipeline/SlicingPipelinePluginCapability.cpp)
+- [`PluginHostSlicing.cpp`](https://github.com/OrcaSlicer/OrcaSlicer/blob/3880f2c58ec392ed2bd5938ab31c9c7c496c0eb2/src/slic3r/plugin/host/PluginHostSlicing.cpp)
 
 ### モデルスナップショット、メッシュ、座標変換
 
@@ -65,8 +66,8 @@
 
 参照:
 
-- [`PluginHostModel.cpp`](https://github.com/OrcaSlicer/OrcaSlicer/blob/f5f3d2221dd929360407aa2ae6759302a8d2c575/src/slic3r/plugin/host/PluginHostModel.cpp)
-- [`PluginHostMesh.cpp`](https://github.com/OrcaSlicer/OrcaSlicer/blob/f5f3d2221dd929360407aa2ae6759302a8d2c575/src/slic3r/plugin/host/PluginHostMesh.cpp)
+- [`PluginHostModel.cpp`](https://github.com/OrcaSlicer/OrcaSlicer/blob/3880f2c58ec392ed2bd5938ab31c9c7c496c0eb2/src/slic3r/plugin/host/PluginHostModel.cpp)
+- [`PluginHostMesh.cpp`](https://github.com/OrcaSlicer/OrcaSlicer/blob/3880f2c58ec392ed2bd5938ab31c9c7c496c0eb2/src/slic3r/plugin/host/PluginHostMesh.cpp)
 
 ### 独自設定UIと設定保存
 
@@ -82,7 +83,7 @@
 | `save_config(json.dumps(config))` | capability自身のグローバル設定を保存する。JSON不正または書き込み失敗時は`False`を返し、既存値を維持する |
 | `get_default_config()` | 「既定値に戻す」で保存するobjectを返す。ホストはプラグイン固有の型、範囲、相関を検証しない |
 | `window.orca.getConfig()` / `saveConfig()` | 独自HTMLとPluginsダイアログ間で同じ設定を読み書きするbridge。未保存の変更を親ダイアログのclose時に確認するI/Fは存在しない |
-| `orca.host.app_language()` | 本体の表示言語を取得する。未対応言語または取得失敗時は英語へフォールバックする |
+| `orca.host.app_info()["language"]` | 本体の表示言語を取得する。UIスレッドからだけ呼べる（`get_config_ui()`はUIスレッドで呼ばれる）。`app_info()`が無いホストでは旧I/Fの`app_language()`を使う。未対応言語または取得失敗時は英語へフォールバックする |
 | `orca.host.preset_bundle()` | プリセットを読み取る。`config_keys()`と`config_value(key)`のみで書き込めない。`config_value()`は`opt_serialize()`経由のため、文字列値は`escape_string_cstyle()`でエスケープされて返る |
 
 設定はcapabilityの`plugin_key`、種別、名前、プラグインバージョンと共にOrcaSlicerのplugin設定へ保存される。ホストは`plugin_loader::load()`の直後、当該`plugin_key`のエントリが無いときだけ`get_default_config()`を初期投入する（`PluginManager.cpp`）。プリセット側にcapability overrideがある場合、`get_config()`はoverrideを優先した有効値を返す。UIと実行処理は必ず同じ`get_config()`を起点にし、プラグイン側でスキーマ検証してから使用する。
@@ -91,9 +92,9 @@
 
 参照:
 
-- [`PythonPluginBridge.cpp`](https://github.com/OrcaSlicer/OrcaSlicer/blob/f5f3d2221dd929360407aa2ae6759302a8d2c575/src/slic3r/plugin/PythonPluginBridge.cpp)
-- [`PluginConfig.cpp`](https://github.com/OrcaSlicer/OrcaSlicer/blob/f5f3d2221dd929360407aa2ae6759302a8d2c575/src/slic3r/plugin/PluginConfig.cpp)
-- [`PluginsDialog`](https://github.com/OrcaSlicer/OrcaSlicer/tree/f5f3d2221dd929360407aa2ae6759302a8d2c575/resources/web/dialog/PluginsDialog)
+- [`PythonPluginBridge.cpp`](https://github.com/OrcaSlicer/OrcaSlicer/blob/3880f2c58ec392ed2bd5938ab31c9c7c496c0eb2/src/slic3r/plugin/PythonPluginBridge.cpp)
+- [`PluginConfig.cpp`](https://github.com/OrcaSlicer/OrcaSlicer/blob/3880f2c58ec392ed2bd5938ab31c9c7c496c0eb2/src/slic3r/plugin/PluginConfig.cpp)
+- [`PluginsDialog`](https://github.com/OrcaSlicer/OrcaSlicer/tree/3880f2c58ec392ed2bd5938ab31c9c7c496c0eb2/resources/web/dialog/PluginsDialog)
 
 ## 互換性の判定方針
 
@@ -102,7 +103,7 @@
 1. 基準コミットとの差分から、上記参照ファイル、`PythonPluginInterface.hpp`、`SlicingPipelinePluginCapabilityTrampoline.hpp`、`PluginsDialog.cpp`の変更を抽出する。
 2. 本ADRのI/F名、引数、戻り値、実行ステップ、スレッド、参照寿命、座標系、設定の保存先と優先順位が維持されているか確認する。
 3. 読み取り専用メッシュ、NumPy view、変換行列の組み合わせが変わった場合は、同じシンボル名でも非互換候補とする。
-4. 対象Nightlyへローカルpluginを新規インストールし、起動、設定表示、保存、復元、再起動後の保持を確認する。
+4. 対象ビルドへローカルpluginを新規インストールし、起動、設定表示、保存、復元、再起動後の保持を確認する。
 5. 変換を含むテストモデルで検出し、`posPrepareInfill`の補強、キャンセル、再スライス、プラグイン無効化を確認する。
 6. Python例外、OrcaSlicerのerror／warnログ、スライス失敗、非対象領域のツールパス差分がなければ、完全なコミットSHAと結果を互換性記録へ追加する。
 
@@ -120,6 +121,24 @@
 - 実機確認でクラッシュ、デッドロック、形状破損、設定消失、再現不能な差分が発生した
 
 互換性が不明な場合は機能単位の推測で許可せず、未対応として安全に拒否する。対応コミットの追加または削除は、本ADRの追記か後継ADRで記録する。
+
+## 互換性記録
+
+| コミット | 実機検証ビルド | 検証日 | 結果 |
+| --- | --- | --- | --- |
+| `f5f3d22` | Nightly `2.5.0-dev` / Build `872c660c` | 2026-08-24 | 初期基準 |
+| `3880f2c` | `v2.5.0-alpha` / Build `3880f2c5` | 2026-10-18 | 対応。下記の変更に追随した |
+
+### `f5f3d22`→`3880f2c`（`v2.5.0-alpha`）
+
+ソース差分（2277コミット）を判定方針の手順1〜3で監査し、matrixフィクスチャ30件のGUI ON/OFF比較で実機を確認した。
+
+- `Step`の列挙値、`posSlice`／`posPrepareInfill`の呼び出し位置、メッシュ・モデル・`Surface`・`ExPolygon`のバインディングは不変。差分は`#include`の追加と、enum値・メソッドの追加のみ
+- `config.json`のレイアウト、`on_load()`と`get_default_config()`初期投入の順序は不変。保存は一時ファイル経由の置き換えへ変わったが、プラグインからの見え方は同じ
+- `orca.host.app_language()`が削除され、UIスレッド限定の`app_info()`へ移った。追随しないと`AttributeError`を握りつぶして設定画面が常に英語になる
+- 監査フックが変わった。読み取りも許可ルート外では確認ダイアログの対象になり、パス要素が`config`・`cert`・`secret`等に完全一致するか`.conf`／`.ini`の場合は拒否される。本プラグインが触る`diagnostic.jsonl`と`orca_plugins/config.json`はどちらも`data_dir()`配下で、要素名も該当しないため影響しない
+- numpyの初回import時に、アプリ同梱Pythonの標準ライブラリ（`ctypes`、`platform`等）の`__pycache__`へ`.pyc`を書こうとして権限確認が出る。拒否しても`PermissionError`をimport機構が無視するため動作に影響しない。ホスト側の挙動のため、プラグイン側では抑止しない
+- 実機比較: 30件すべてで穴を検出・補強し、Python例外と診断の警告・エラーは0件。非対象領域の差分は、設定ブロックとオブジェクト間の`SQUARE_CORNER_VELOCITY`状態引き継ぎだけだった（[統合検証](../orcaslicer-integration-verification.md)）
 
 ## 結果
 

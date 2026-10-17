@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_FIXTURES = ROOT / "test-models" / "fixtures"
 DEFAULT_ORCASLICER = Path(
-    "/Applications/OrcaSlicer Nightly.app/Contents/MacOS/OrcaSlicer"
+    "/Applications/OrcaSlicer.app/Contents/MacOS/OrcaSlicer"
 )
 DEFAULT_DATADIR = Path.home() / "Library" / "Application Support" / "OrcaSlicer"
 
